@@ -1,0 +1,114 @@
+<style>
+	.overlay {
+		display: none;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background-color: rgba(255, 255, 255, 0.8);
+		z-index: 1000;         /* Ensure it's on top of other content */
+		color: black;
+	}
+	.overlay form {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%); /*less computation than display flex on parent*/
+		display: flex;
+		flex-direction: column;
+		background-color: white;
+		padding: 40px;
+		border-radius: 10px;
+		border: 2px solid black;
+		width: 90vw;
+		max-width: 400px;
+		height: 60vh;
+		max-height: 600px;
+		align-self: center;
+	}
+</style>
+<div class="overlay" id="login">
+	<form method="POST" action="/login" id="loginForm">
+		<button type="button" id="closeLogin">✖</button>
+
+		{% if login_error %}
+			<div id="error-message" style="color: red;">{{ login_error }}</div>
+		{% endif %}
+
+		<label for="username">Username:</label>
+		<input type="text" name="username" pattern="[a-zA-Z0-9]+" required title="Only alphanumeric characters are allowed.">
+
+		<label for="password">Password:</label>
+		<input type="password" name="password" pattern="[a-zA-Z0-9]+" required>
+
+		<input type="submit" value="Log In">
+	</form>
+
+</div>
+
+<div class="overlay" id="signup">
+	<form method="POST" action="/signup" onsubmit="return validatePasswords()">
+		<button type="button" id="closeSignup">✖</button>
+
+		<label for="username">Username:</label>
+		<input type="text" name="username" pattern="[a-zA-Z0-9]+" required title="Only alphanumeric characters are allowed.">
+
+		<label for="email">Email:</label>
+		<input type="email" name="email" required title="Please enter a valid email address.">
+
+		<label for="password">Password:</label>
+		<input type="password" id="signpass" name="password" pattern="[a-zA-Z0-9]+" required title="Only alphanumeric characters are allowed.">
+
+		<label for="confirm_password">Confirm Password:</label>
+		<input type="password" id="signpasscheck" name="confirm_password" pattern="[a-zA-Z0-9]+" required title="Only alphanumeric characters are allowed.">
+
+		<div id="signup_error_message" style="color: red; display: none;">{{ signup_error }}</div>
+
+		<input type="submit" value="Sign Up">
+	</form>
+</div>
+<script>
+	function validatePasswords() {
+		const signpass = document.getElementById('signpass').value;
+		const signpasscheck = document.getElementById('signpasscheck').value;
+		const err = document.getElementById('signup_error_message');
+		console.log(signpass, signpasscheck, err);
+
+		if (signpass !== signpasscheck) // Set the error message in the err element
+		{
+			err.textContent = "Passwords do not match. Please try again.";
+			err.style.display = "block";
+			return false; // Prevent form submission
+		}
+		return true; // Allow form submission
+	}
+</script>
+
+<script>
+	// Get references to the buttons and overlay
+	const login = document.querySelector('#login');
+	const openLogin = document.querySelector('#login_button');
+	const closeLogin = document.querySelector('#closeLogin');
+
+	const signup = document.querySelector('#signup');
+	const openSignup = document.querySelector('#signup_button');
+	const closeSignup = document.querySelector('#closeSignup');
+
+	openLogin.addEventListener('click', () => { login.style.display = 'block';}); // Function to open the overlay in menu
+	closeLogin.addEventListener('click', () => { login.style.display = 'none';}); // Function to close the overlay on the cross
+
+	openSignup.addEventListener('click', () => { signup.style.display = 'block';}); //same for signup
+	closeSignup.addEventListener('click', () => { signup.style.display = 'none';});
+
+	// Close overlay when clicking outside of it
+	window.addEventListener('click', (event) => { if (event.target === login) { login.style.display = 'none';}});
+	window.addEventListener('click', (event) => { if (event.target === signup) { signup.style.display = 'none';}});
+
+	{% if login_error %}
+		login.style.display = 'block';
+	{% endif %}
+	{% if signup_error %}
+		signup.style.display = 'block';
+	{% endif %}
+</script>

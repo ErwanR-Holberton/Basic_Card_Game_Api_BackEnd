@@ -1,0 +1,65 @@
+{% include 'style/navbar.html' %}
+<div id="nav_margin"></div>
+<header id="navbar">
+    <div id="menu">
+        <div>Home</div>
+        <div>Rules</div>
+        <div>News</div>
+        <div>Forum</div> <!--comunity, forum discord... FAQ??-->
+        <div>Deck Builder</div> <!--card  list, deck builder-->
+    </div>
+    <div>
+        <div id="download">Download</div>
+        <div>
+            <div id="account" onclick="toggleDropdown()">
+                {{ user if user else "Account" }}
+                <img src="{{ url_for('static', filename='images/user.svg') }}">
+            </div>
+            <ul id="accountdropdown" class="">
+                <div id="login_button">Log in</div>
+                <div id="signup_button">Sign up</div>
+                <a>Settings</a>
+                <form action="/logout" method="post"><button type="submit">Logout</button></form>
+            </ul>
+        </div>
+    </div>
+</header>
+{% include 'login.html' %}
+<script src="https://accounts.google.com/gsi/client" async defer>//google</script>
+<script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js">//jwt decode</script>
+
+<!--
+
+            <div id="g_id_onload"
+                data-client_id="203654317993-ultcan7rulqq8893hpf5m263fn8lq37v.apps.googleusercontent.com"
+                data-context="signin"
+                data-callback="handleCredentialResponse"
+                data-itp_support="true">
+            </div>
+-->
+<script>
+	const dropdown = document.querySelector('#accountdropdown');
+	const account = document.querySelector('#account');
+
+    function toggleDropdown() {
+        if (dropdown.style.display != 'flex')
+            dropdown.style.display = 'flex';
+        else
+            dropdown.style.display = 'none';
+     }
+	// Close overlay when clicking outside of it
+	window.addEventListener('click', (event) => {
+        if (event.target != account)
+            dropdown.style.display = 'none';
+    });
+</script>
+<script>
+    // Function to log a message
+    function handleCredentialResponse(response) {
+            const userToken = jwt_decode(response.credential);
+            console.log('User Information:');
+            console.log(`Name: ${userToken.name}`);
+            console.log(`Email: ${userToken.email}`);
+            console.log(`Profile Picture: ${userToken.picture}`);
+        }
+</script>

@@ -1,0 +1,61 @@
+<style>
+    :root {
+        --navbar_height: 50px;
+    }
+    body {
+        margin: 0;
+    }
+    #navbar {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: var(--navbar_height);
+        position: fixed;
+        top: 0;
+        justify-content: space-between;
+        background-color: rgba(0, 0, 0, 0.904);
+        z-index: 999;
+
+        color: aqua;
+        font-family: Cinzel, serif;
+        align-items: center;
+        font-weight: 600;
+        font-size: 1.5em;
+    }
+    #navbar div {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        list-style-type: none;
+        height: 100%;
+    }
+    #navbar #menu div {
+        margin-right: 10px;
+    }
+    #nav_margin { margin-bottom: var(--navbar_height); }
+    #download {
+        margin-right: 50px;
+    }
+    #accountdropdown {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: var(--navbar_height);
+        right: 0;
+        margin: 0;
+        color: white;
+        background-color: grey;
+        border-radius: 15px;
+        padding: 10px;
+        margin-top: 5px;
+    }
+    #accountdropdown > *:hover {
+        background-color: lightgray;
+    }
+    #accountdropdown > * {
+        border-radius: 10px;
+        padding: 5px;
+        font-size: 1.25rem;
+    }
+</style>
