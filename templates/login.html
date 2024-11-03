@@ -105,6 +105,7 @@
 	window.addEventListener('click', (event) => { if (event.target === login) { login.style.display = 'none';}});
 	window.addEventListener('click', (event) => { if (event.target === signup) { signup.style.display = 'none';}});
 
+	//jinja in javascript seems higly unstable and not recognised by vscode parser but works with this exact spacing
 	{% if login_error %}
 		login.style.display = 'block';
 	{% endif %}

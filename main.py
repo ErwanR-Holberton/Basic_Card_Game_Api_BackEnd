@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, jsonify, make_response, redirect, url_for, session
 from flask_cors import CORS
 from Ngrok_module import Start_Ngrok
-from database.database import create_connection, create_user, verify_user
+from database.database import create_connection, create_user, verify_user, get_all_cards
 import jwt
 from datetime import timedelta, datetime
+from matchmaking import socketio
 try:
     from APP_config import SECRET_KEY
 except:
@@ -15,6 +16,7 @@ CORS(app)
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['SESSION_COOKIE_SAMESITE'] = 'Strict' #use cookies only from self to avoid CSRF
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)  # Set session duration
+socketio.init_app(app)
 
 def generate_token(username): #generate Jason Web Token
     return jwt.encode({
@@ -51,7 +53,6 @@ def login():
     else:
         return  add_cookie_to_render(previous_page, login_error="Invalid username or password")
 
-
 @app.route('/signup', methods=['POST'])
 def signup():
     previous_page = request.cookies.get('prev_page')
@@ -69,7 +70,6 @@ def signup():
     else:
         return  add_cookie_to_render(previous_page, signup_error="Invalid username")
 
-
 @app.route('/logout', methods=['POST'])
 def logout():
     previous_page = request.cookies.get('prev_page')
@@ -77,6 +77,27 @@ def logout():
     response.set_cookie('jwt_token', '', expires=0)  # Remove the JWT cookie by setting its expiration to the past
     return response
 
+@app.route('/deck_builder', methods=['GET'])
+def deck_builder():
+    token = request.cookies.get('jwt_token')
+    user_data = None
+    conn = create_connection()
+    cards = get_all_cards(conn)
+    conn.close()
+    if not token:
+        return add_cookie_to_render('deck_builder.html', user=None, cards=cards)
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        return render_template('deck_builder.html', user=data, cards=cards)
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Token has expired!'}), 403 #need to redirect to ligin or do something that makes better sense
+
+
+#---------------------------------------------
+
+@app.route('/sockets', methods=['GET'])
+def socket_page():
+    return add_cookie_to_render('test_Sockets.html')
 
 @app.route('/protected', methods=['GET'])
 def protected():
@@ -91,5 +112,9 @@ def protected():
     except jwt.ExpiredSignatureError:
         return jsonify({'message': 'Token has expired!'}), 403 #need to redirect to ligin or do something that makes better sense
 
+#---------------------------------------------
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=7115)
+    print("server running...")
+    socketio.run(app, port=7115)
+    #app.run(host='0.0.0.0', port=7115)

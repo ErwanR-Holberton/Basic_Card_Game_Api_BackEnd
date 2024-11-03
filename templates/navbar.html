@@ -2,16 +2,17 @@
 <div id="nav_margin"></div>
 <header id="navbar">
     <div id="menu">
-        <div>Home</div>
+        <a href="/">Home</a>
         <div>Rules</div>
         <div>News</div>
         <div>Forum</div> <!--comunity, forum discord... FAQ??-->
-        <div>Deck Builder</div> <!--card  list, deck builder-->
+        <a href="/deck_builder">Deck Builder</a> <!--card  list, deck builder-->
+        <a href="/sockets">Socket test</a> <!--card  list, deck builder-->
     </div>
     <div>
         <div id="download">Download</div>
         <div>
-            <div id="account" onclick="toggleDropdown()">
+            <div id="account" onclick="toggleDropdown(event)">
                 {{ user if user else "Account" }}
                 <img src="{{ url_for('static', filename='images/user.svg') }}">
             </div>
@@ -41,7 +42,9 @@
 	const dropdown = document.querySelector('#accountdropdown');
 	const account = document.querySelector('#account');
 
-    function toggleDropdown() {
+    function toggleDropdown(event) {
+        event.stopPropagation(); //somehow adding event to the function and
+        //stopping propagation allows children image to trigger the onclick() function
         if (dropdown.style.display != 'flex')
             dropdown.style.display = 'flex';
         else

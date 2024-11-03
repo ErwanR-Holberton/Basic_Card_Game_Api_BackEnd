@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-signin-client_id" content="203654317993-ultcan7rulqq8893hpf5m263fn8lq37v.apps.googleusercontent.com">
+    <title>GKE Card Game: Deck Builder</title>
+    <style>
+        .card {
+            max-width: 100px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h1>Deck Builder</h1>
+	{% for card in cards %}
+        <img class="card" id="{{ card[0] }}" src="{{ url_for('static', filename=card[5]) }}" alt="{{ card[1] }}">
+	{% endfor %}
+</body>
+</html>
