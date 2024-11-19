@@ -36,11 +36,11 @@ class Game_Match():
 
     def user_response_to_matchmaking(self, player_id, response):
         other_player = self.get_other_player(player_id)
-        if response == 'no':
-            self.answers[player_id] = 'no'
+        self.answers[player_id] = response
+        if not response: #player said no
 
             #send the other player back in queue if he didnt answer or accepted
-            if other_player not in self.answers or self.answers[other_player] == 'yes':
+            if other_player not in self.answers or self.answers[other_player]:
                 update_player_status(other_player, 'waiting')
                 waiting_queue.append(other_player)
                 match_users()  # Re-check for matching
@@ -49,10 +49,9 @@ class Game_Match():
             update_player_status(player_id, 'connected')
             self.delete_match()
 
-        elif response == 'yes':
-            self.answers[player_id] = 'yes'
+        elif response:
             if other_player in self.answers:
-                if self.answers[player_id] == 'yes':
+                if self.answers[player_id]:
                     update_player_status(player_id, 'in_match')
                     update_player_status(other_player, 'in_match')
 
@@ -110,7 +109,7 @@ def match_users():
 @socketio.on('match_response')
 def handle_match_response(data):
     sid = request.sid
-    response = data.get('response', 'no')
+    response = data.get('response', False)
     emit('server_recieved_match_response', {}, to=sid)
     match_instance = Game_Match.instances[sid]
     match_instance.user_response_to_matchmaking(sid, response)
