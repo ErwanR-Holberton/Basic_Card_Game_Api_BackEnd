@@ -1,28 +1,13 @@
-from flask import Flask, render_template, request, jsonify, make_response, redirect, url_for, session
-from flask_cors import CORS
+from flask import render_template, request, jsonify, make_response, redirect, url_for, session
 from Ngrok_module import Start_Ngrok
 from database.database import create_connection, create_user, verify_user, get_all_cards
-import jwt
-from datetime import timedelta, datetime
+import jwt, os
 from matchmaking import socketio
-try:
-    from APP_config import SECRET_KEY
-except:
-    print("Ask Developper for APP_config.py file")
-    exit(1)
 
-app = Flask(__name__)
-CORS(app)
-app.config['SECRET_KEY'] = SECRET_KEY
-app.config['SESSION_COOKIE_SAMESITE'] = 'Strict' #use cookies only from self to avoid CSRF
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)  # Set session duration
+
+from App import app
+from generate_token import generate_token
 socketio.init_app(app)
-
-def generate_token(username): #generate Jason Web Token
-    return jwt.encode({
-        'user': username,
-        'exp': datetime.utcnow() + timedelta(days=1)
-        }, app.config['SECRET_KEY'], algorithm='HS256')
 
 def add_cookie_to_render(file, *args, **kwargs):  #you should pass html file name and render arguments
     response = make_response(render_template(file, *args, **kwargs)) # need to add a default page
@@ -92,12 +77,14 @@ def deck_builder():
     except jwt.ExpiredSignatureError:
         return jsonify({'message': 'Token has expired!'}), 403 #need to redirect to ligin or do something that makes better sense
 
+@app.route('/get_cards_routes', methods=['GET'])
+def get_cards_routes_for_unity():
+    conn = create_connection()
+    cards = get_all_cards(conn)
+    conn.close()
+    return [(card[0], card[1], card[5]) for card in cards]
 
 #---------------------------------------------
-
-@app.route('/sockets', methods=['GET'])
-def socket_page():
-    return add_cookie_to_render('test_Sockets.html')
 
 @app.route('/protected', methods=['GET'])
 def protected():

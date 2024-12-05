@@ -1,18 +1,49 @@
 from flask_socketio import SocketIO, emit
 from flask import request
+from database.database import verify_user, create_connection, get_user_selected_deck_by_id, get_user_id_by_username
+from generate_token import generate_token, verify_token
+
 
 socketio = SocketIO()
 
 users = {}  # Stores user states
+user_ids = {}
 waiting_queue = []  # Queue of users waiting for a match
 
 def update_player_status(player, status):
     socketio.emit('status', {'state': status}, to=player)
     users[player] = status
 
+@socketio.on('game_login')
+def game_login(data):
+    sid = request.sid
+    username = data.get('username', None)
+    password = data.get('password', None)
+    conn = create_connection()
+    result = verify_user(conn, username, password)
+    if result:
+        user_id = get_user_id_by_username(conn, username)
+        user_ids[sid] = user_id
+        update_player_status(sid, "verified")
+    else:
+        user_id = None
+    conn.close()
+    print(f"{user_id}")
+    emit('game_login_response', {'user_id': user_id}, to=sid)
+
+def get_deck(sid):
+    user_id = user_ids[sid]
+    conn = create_connection()
+    deck_id = get_user_selected_deck_by_id(conn, user_id)
+    cards = get_user_selected_deck_by_id(conn, deck_id)
+    conn.close()
+    if not cards:
+        return ["2", "4", "6", "8", "10", "12", "14", "16", "18"]
+    return cards
+
 
 class Game_Match():
-    instances = {} #stores match reference for each player: {player_id: match}
+    instances = {} #class variable to store match reference for each player: {player_id: match}
     players = [] #used in instances to store player 1 and player 2
     answers = {} #used in instances to store their answers {player_id: 'yes'"or 'no'}
     def __init__(self, p1, p2):
@@ -22,6 +53,7 @@ class Game_Match():
         self.__class__.instances[p1] = self
         self.__class__.instances[p2] = self
         print("new match", self.players)
+        print(get_deck(p1), get_deck(p2))
 
     def delete_match(self): #empties the refs in instances
         print("ending match", self.players)
@@ -50,22 +82,25 @@ class Game_Match():
             self.delete_match()
 
         elif response:
-            if other_player in self.answers:
+            if other_player in self.answers: #both player accepted
                 if self.answers[player_id]:
-                    update_player_status(player_id, 'in_match')
-                    update_player_status(other_player, 'in_match')
+                    self.make_users_load_game()
+
+    def make_users_load_game(self):
+        update_player_status(self.players[0], 'in_match')
+        update_player_status(self.players[1], 'in_match')
 
     def disconnection(self, disconnected_player):
         other_player = self.get_other_player(disconnected_player)
+        print("setting other to connected")
         update_player_status(other_player, 'connected')
         self.delete_match()
 
 @socketio.on('connect')
 def handle_connect():
     sid = request.sid
-    users[sid] = 'connected'
+    update_player_status(sid, 'connected')
     print(sid, "connected")
-    emit('status', {'state': 'connected'}, to=sid)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -74,20 +109,21 @@ def handle_disconnect():
 
     if sid in users:
         del users[sid]
+    if sid in user_ids:
+        del user_ids[sid]
     if sid in waiting_queue:
         waiting_queue.remove(sid)
     if sid in Game_Match.instances:
         match = Game_Match.instances[sid]
         match.disconnection(sid)
 
-
 @socketio.on('start_queue')
 def start_queue():
     sid = request.sid
-    users[sid] = 'waiting'
-    waiting_queue.append(sid)
-    emit('status', {'state': 'waiting'}, to=sid)
-    match_users()
+    if users[sid] == 'verified':
+        update_player_status(sid, 'waiting')
+        waiting_queue.append(sid)
+        match_users()
 
 def match_users():
     print("checking queue:", waiting_queue)
