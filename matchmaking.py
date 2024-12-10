@@ -1,7 +1,8 @@
 from flask_socketio import SocketIO, emit
 from flask import request
-from database.database import verify_user, create_connection, get_user_selected_deck_by_id, get_user_id_by_username
+from database.database import verify_user, create_connection, get_user_selected_deck_by_id, get_user_id_by_username, get_cards_from_deck
 from generate_token import generate_token, verify_token
+import random, ast
 
 
 socketio = SocketIO()
@@ -35,25 +36,70 @@ def get_deck(sid):
     user_id = user_ids[sid]
     conn = create_connection()
     deck_id = get_user_selected_deck_by_id(conn, user_id)
-    cards = get_user_selected_deck_by_id(conn, deck_id)
+    string_cards = get_cards_from_deck(conn, deck_id)
+    if string_cards is not None:
+        print(type(string_cards))
+        cards = ast.literal_eval(string_cards)
+    else:
+        cards = None
     conn.close()
     if not cards:
         return ["2", "4", "6", "8", "10", "12", "14", "16", "18"]
     return cards
 
+def pick(quantity, cards):
+    return cards[:quantity], cards[quantity:]
 
 class Game_Match():
     instances = {} #class variable to store match reference for each player: {player_id: match}
     players = [] #used in instances to store player 1 and player 2
     answers = {} #used in instances to store their answers {player_id: 'yes'"or 'no'}
+    decks = []
+    cards_in_hand = [[], []]
+    cards_in_pile = [[], []]
+    cards_on_board = [[], []]
+
     def __init__(self, p1, p2):
         self.players.append(p1)
         self.players.append(p2)
         self.answers = {}
+
         self.__class__.instances[p1] = self
         self.__class__.instances[p2] = self
+
+        self.decks.append(get_deck(p1))
+        self.decks.append(get_deck(p2))
+        print(self.decks, type(self.decks[0]))
+        self.init_decks()
         print("new match", self.players)
-        print(get_deck(p1), get_deck(p2))
+
+    def init_decks(self):
+        #put the cards in the pile and shuffle
+        self.cards_in_pile[0] = self.decks[0][:]
+        random.shuffle(self.cards_in_pile[0])
+        self.cards_in_pile[1] = self.decks[1][:]
+        random.shuffle(self.cards_in_pile[1])
+
+
+    def pick_cards_for_player(self, player_index, quantity):
+        cards_picked, cards_remaining = pick(quantity, self.cards_in_pile[player_index])
+        self.cards_in_hand[player_index] += cards_picked
+        socketio.emit('pick_cards', {'cards': cards_picked}, to=self.players[player_index])
+        self.cards_in_pile[player_index] = cards_remaining
+
+    def start_game(self):
+        #pick cards
+        self.pick_cards_for_player(0, 5)
+        self.pick_cards_for_player(1, 5)
+
+    def are_users_ready(self, sid):
+        print(sid, type(sid))
+        self.answers[sid] = True
+        if len(self.answers) == 2:
+            self.start_game()
+
+
+
 
     def delete_match(self): #empties the refs in instances
         print("ending match", self.players)
@@ -85,6 +131,7 @@ class Game_Match():
             if other_player in self.answers: #both player accepted
                 if self.answers[player_id]:
                     self.make_users_load_game()
+                    self.answers = {}
 
     def make_users_load_game(self):
         update_player_status(self.players[0], 'in_match')
@@ -149,6 +196,12 @@ def handle_match_response(data):
     emit('server_recieved_match_response', {}, to=sid)
     match_instance = Game_Match.instances[sid]
     match_instance.user_response_to_matchmaking(sid, response)
+
+@socketio.on('ready_to_start')
+def user_says_ready():
+    sid = request.sid
+    match_instance = Game_Match.instances[sid]
+    match_instance.are_users_ready(sid)
 
 @socketio.on('end_match')
 def end_match():
