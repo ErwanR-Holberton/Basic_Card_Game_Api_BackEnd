@@ -1,0 +1,205 @@
+/* Général */
+body {
+    margin: 0;
+    padding-top: 100px;
+    padding-bottom: 200px;
+    font-family: Garamond;
+    display: flex;
+    justify-content: center;
+    align-self: flex-end;
+    background-color: #4E3B31;
+    /* bois sombre pour le fond */
+    color: #EAD8A6;
+}
+
+a {
+    text-decoration: underline;
+    color: #EAD8A6;
+    /* Texte Parchment Beige */
+    transition: color 0.3s ease; /* Animation de transition pour la couleur */
+}
+a:hover {
+    color: #C4A000; /* Couleur lors du survol de la souris */
+}
+
+.nav {
+    display: flex;
+    gap: 20px;
+}
+
+.nav a {
+    font-weight: bold;
+    font-size: 24px;
+
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user img {
+    height: 50px;
+}
+
+
+
+/*nav-link*/
+.nav-link {
+    text-decoration: none;
+    color: #EAD8A6;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background-color: #C4A000;
+    color: #4E3B31;
+}
+/* Login Page */
+.registration-page {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.registration-page h1 {
+    font-size: 2rem;
+    color: #C4A000; /* Antique gold for the title */
+    margin-bottom: 20px;
+}
+
+/* Form styles */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.form-group label {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #C4A000; /* Antique gold border */
+    border-radius: 5px;
+    background-color: #EAD8A6; /* Parchment beige */
+    color: #2C3E50; /* Midnight blue text */
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #355E3B; /* Emerald green on focus */
+}
+
+.terms {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.terms a {
+    color: #C4A000; /* Antique gold for the link */
+    text-decoration: none;
+}
+
+.terms a:hover {
+    text-decoration: underline;
+}
+
+/* Button styles */
+.btn-validate {
+    padding: 10px 20px;
+    background-color: #355E3B; /* Same color as header */
+    color: #C4A000; /* Antique gold text */
+    border: 2px solid #C4A000;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-validate:hover {
+    background-color: #C4A000;
+    color: #4E3B31;
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+/* For screens 1024px and smaller */
+@media (max-width: 1024px) {
+    body {
+        flex-direction: column;
+        padding: 50px 10px;
+        text-align: center;
+    }
+
+    .nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav a {
+        font-size: 20px;
+    }
+
+    .user img {
+        height: 40px;
+    }
+
+    .registration-page {
+        padding: 15px;
+        margin-top: 10px;
+    }
+
+    .btn-validate {
+        font-size: 1rem;
+    }
+}
+
+/* For screens 768px and smaller */
+@media (max-width: 768px) {
+    body {
+        padding: 20px 5px;
+    }
+
+    .nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .nav a {
+        font-size: 18px;
+    }
+
+    .registration-page {
+        max-width: 90%;
+        padding: 10px;
+    }
+
+    .form-group input {
+        font-size: 0.9rem;
+    }
+
+    .btn-validate {
+        font-size: 0.9rem;
+        padding: 8px 15px;
+    }
+}

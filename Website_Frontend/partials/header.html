@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Kingdom Battleground-header</title>
+	<link rel="stylesheet" href="styles/header-footer_styles.css">
+</head>
+
+<body>
+	<header class="header">
+		<button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+		<div class="burger-menu">
+			<span></span>
+			<span></span>
+			<span></span>
+		</div>
+		<div class="nav-links">
+			<a href="DeckBuilder.html" id="deckbuild">DeckBuilder</a>
+			<a href="forum.html">Forum</a>
+			<a href="profil.html">Profil</a>
+		</div>
+		<div class="logo">
+			<a href="index.html"><img src="assets/GKE-logo.webp" alt="GKE-logo"></a>
+		</div>
+		<div class="user-container">
+			<button class="user-button" id="userButton">
+				<img src="\Kingdom-Battleground_Website\assets\user-icon.png" alt="User Icon">
+				<span class="tooltip-text" id="tooltipText">Login/Sign-up</span>
+			</button>
+			<div class="user-options">
+                <a href="#" id="loginLink">login
+
+				</a>
+                <a href="registration.html" id="signupLink">Sign-up</a>
+            </div>
+			<div class="login-box" id="loginBox">
+				<form action="/login" method="POST">
+					<div class="form-group">
+						<label for="login-email">E-Mail</label>
+						<input type="email" id="login-email" name="email" placeholder="Enter your email" required>
+					</div>
+					<div class="form-group">
+						<label for="login-password">Password</label>
+						<input type="password" id="login-password" name="password" placeholder="Enter your password"
+							required>
+					</div>
+					<button type="submit" class="btn-validate">Login</button>
+					<a href="/forgot-password" class="forgot-password-link">Forgot password?</a>
+				</form>
+				</div>
+			</div>
+		</div>
+	</header>
+	<script src="main.js"></script>
+</body>

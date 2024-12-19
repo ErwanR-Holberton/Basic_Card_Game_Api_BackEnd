@@ -1,0 +1,275 @@
+/* General styles */
+body {
+    margin: 0;
+    padding-top: 100px;
+    padding-bottom: 200px;
+    font-family: Garamond;
+    justify-content: center;
+    background-color: #4E3B31;
+    /* bois sombre pour le fond */
+    color: #EAD8A6;
+}
+
+a {
+    text-decoration: underline;
+    color: #EAD8A6;
+    /* Texte Parchment Beige */
+    transition: color 0.3s ease; /* Animation de transition pour la couleur */
+}
+a:hover {
+    color: #C4A000; /* Couleur lors du survol de la souris */
+}
+
+
+.nav {
+    display: flex;
+    gap: 20px;
+}
+
+.nav a {
+    font-weight: bold;
+    font-size: 24px;
+
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user img {
+    height: 50px;
+}
+
+
+
+/*nav-link*/
+.nav-link {
+    text-decoration: none;
+    color: #EAD8A6;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background-color: #C4A000;
+    color: #4E3B31;
+}
+header, footer {
+    background-color: #2C3E50;
+    color: #EAD8A6;
+    padding: 1rem;
+    text-align: center;
+}
+/* Profile section */
+.profile-section {
+    margin: 20px;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.profile-section h1 {
+    text-align: center;
+    color: #EAD8A6;
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.avatar {
+    width: 100px;
+    height: 100px;
+    background-color: #EAD8A6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #C4A000;
+}
+
+.fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.field input {
+    flex: 1;
+    padding: 5px;
+    border: 2px solid #C4A000;
+    border-radius: 5px;
+    background-color: #F4E8C1;
+    color: #355E3B;
+}
+
+.edit-button {
+    background-color: #C4A000;
+    border: none;
+    color: #EAD8A6;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.edit-button:hover {
+    background-color: #355E3B;
+}
+
+.reset-password {
+    background-color: #355E3B;
+    color: #EAD8A6;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.reset-password:hover {
+    background-color: #C4A000;
+    color: #355E3B;
+}
+
+/* Leaderboard section */
+
+.leaderboard-section h2 {
+    text-align: center;
+    color: #EAD8A6;
+}
+
+.leaderboard {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+    background-color: #EAD8A6;
+    color: #EAD8A6;
+	margin-bottom: 5px;
+    padding: 10px 20px;
+    border: 4px solid #C4A000;
+    font-size: 24px;
+	border-radius: 20px;
+	text-align: center;
+}
+
+.leaderboard th, .leaderboard td {
+    text-align: center;
+    padding: 10px;
+}
+
+.leaderboard th {
+    color: #C4A000;
+}
+
+.leaderboard td {
+    background-color: #F4E8C1;
+}
+
+/* Decks section */
+.decks-section h2 {
+    text-align: center;
+    color: #EAD8A6;
+}
+
+
+
+
+.decks {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+    background-color: #EAD8A6;
+    color: #EAD8A6;
+	margin-bottom: 5px;
+    padding: 10px 20px;
+    border: 4px solid #C4A000;
+    font-size: 24px;
+	border-radius: 20px;
+	text-align: center;
+}
+
+.decks th, .decks td {
+    text-align: center;
+    padding: 10px;
+}
+
+.decks th {
+    color: #C4A000;
+}
+
+.decks td {
+    background-color: #F4E8C1;
+}
+
+.create-deck {
+    justify-content: center;
+    background-color: #355E3B;
+    color: #EAD8A6;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.create-deck:hover {
+    background-color: #C4A000;
+    color: #355E3B;
+}
+
+/* Media Queries */
+
+/* For screens 1024px and below */
+@media (max-width: 1024px) {
+    .nav a {
+        font-size: 20px;
+    }
+
+    .profile-info {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .leaderboard, .decks {
+        font-size: 20px;
+    }
+}
+
+/* For screens 768px and below */
+@media (max-width: 768px) {
+    body {
+        padding-top: 50px;
+        padding-bottom: 100px;
+    }
+
+    .nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .nav a {
+        font-size: 18px;
+    }
+
+    .profile-info {
+        flex-direction: column;
+    }
+
+    .leaderboard, .decks {
+        padding: 10px;
+        font-size: 16px;
+    }
+}

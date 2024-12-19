@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Kingdom Battleground-registration page</title>
+	<link rel="stylesheet" href="styles/Registration_Styles.css">
+</head>
+
+<body>
+
+	<div id="header-placeholder"></div> <!-- Placeholder pour le header -->
+
+	<main class="registration-page">
+		<h1>Your Journey Starts Here</h1>
+		<form action="/submit_registration" method="POST" class="login-form">
+			<!-- Pseudonyme -->
+			<div class="form-group">
+				<label for="pseudonyme">Pseudonyme</label>
+				<input type="text" id="pseudonyme" name="pseudonyme" placeholder="Enter your pseudonym" required>
+			</div>
+
+			<!-- E-Mail -->
+			<div class="form-group">
+				<label for="email">E-Mail</label>
+				<input type="email" id="email" name="email" placeholder="Enter your email" required>
+			</div>
+
+			<!-- Password -->
+			<div class="form-group">
+				<label for="password">Password</label>
+				<input type="password" id="password" name="password" placeholder="Enter your password" required>
+			</div>
+
+			<!-- Confirm Password -->
+			<div class="form-group">
+				<label for="confirm-password">Confirm Password</label>
+				<input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password"
+					required>
+			</div>
+
+			<!-- Terms and Conditions -->
+			<div class="form-group terms">
+				<input type="checkbox" id="terms" name="terms" required>
+				<label for="terms">I agree to the <a href="/tos" target="_blank">Terms and Conditions</a></label>
+			</div>
+
+			<!-- Validation Button -->
+			<button type="submit" class="btn-validate">Sign In</button>
+		</form>
+	</main>
+
+	<script src="js/main.js"></script>
+	<div id="footer-placeholder"></div> <!-- Placeholder pour le footer -->
+</body>
+
+</html>

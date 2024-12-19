@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Kingdom Battleground-forum page</title>
+	<link rel="stylesheet" href="styles/Forum_styles.css">
+</head>
+
+<body>
+	<div id="header-placeholder"></div>
+
+	<h1 class="page-title">Forum</h1>
+
+	<!-- Forum Topics Section -->
+	<section class="forum-topics">
+		<button class="arrow-left">&lt;</button>
+		<div class="topics-container">
+			<a href="#">General Discussion</a>
+			<a href="#">Game Updates</a>
+			<a href="#">Strategies</a>
+			<a href="#">Technical Support</a>
+			<a href="#">Community Creations</a>
+		</div>
+		<button class="arrow-right">&gt;</button>
+	</section>
+
+	<!-- Sorting and Filtering Section -->
+	<section class="sorting-filters">
+		<label for="read-status">Read/Unread:</label>
+		<select id="read-status">
+			<option value="all">All</option>
+			<option value="read">Read</option>
+			<option value="unread">Unread</option>
+		</select>
+
+		<label for="follow-status">Followed:</label>
+		<select id="follow-status">
+			<option value="all">All</option>
+			<option value="followed">Followed</option>
+			<option value="not-followed">Not Followed</option>
+		</select>
+
+		<label for="author">Author:</label>
+		<input type="text" id="author" placeholder="Search by author">
+
+		<label for="type">Type:</label>
+		<select id="type">
+			<option value="all">All</option>
+			<option value="question">Question</option>
+			<option value="discussion">Discussion</option>
+		</select>
+
+		<label for="creation-date">Creation Date:</label>
+		<input type="date" id="creation-date">
+	</section>
+
+	<!-- Pagination Section -->
+	<section class="pagination">
+		<button class="first-page">&laquo; First</button>
+		<button class="prev-page">&lt; Prev</button>
+		<div class="page-numbers">
+			<button class="page-number">1</button>
+			<button class="page-number">2</button>
+			<button class="page-number">3</button>
+		</div>
+		<button class="next-page">Next &gt;</button>
+		<button class="last-page">Last &raquo;</button>
+	</section>
+
+	<!-- Forum Articles Section -->
+	<section class="forum-articles">
+		<div class="articles-header">
+			<span class="column-title">Title</span>
+			<span class="column-author">Author</span>
+			<span class="column-date">Creation Date</span>
+			<span class="column-replies">Replies</span>
+			<span class="column-last-message">Last Message</span>
+		</div>
+
+		<div class="article-row">
+			<span class="article-title">How to play?</span>
+			<span class="article-author">User123</span>
+			<span class="article-date">2024-12-01</span>
+			<span class="article-replies">5</span>
+			<span class="article-last-message">2024-12-02</span>
+		</div>
+		<!-- Additional article rows would go here -->
+	</section>
+
+	<!-- Pagination Section -->
+	<section class="pagination">
+		<button class="first-page">&laquo; First</button>
+		<button class="prev-page">&lt; Prev</button>
+		<div class="page-numbers">
+			<button class="page-number">1</button>
+			<button class="page-number">2</button>
+			<button class="page-number">3</button>
+		</div>
+		<button class="next-page">Next &gt;</button>
+		<button class="last-page">Last &raquo;</button>
+	</section>
+
+
+	<script src="js/main.js"></script>
+	<div id="footer-placeholder"></div> <!-- Placeholder pour le footer -->
+</body>

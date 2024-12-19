@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Builder</title>
+    <link rel="stylesheet" href="styles/Deck_Builder_Styles.css">
+</head>
+
+<body>
+    <div id="header-placeholder"></div> <!-- Placeholder pour le header -->
+
+    <h1>Build your Deck</h1>
+
+    <div class="container">
+        <!-- Card Table -->
+        <div class="card-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Attack</th>
+                        <th>Defense</th>
+                        <th>Spell</th>
+                        <th>Trap</th>
+                        <th>Equipment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Example Card Rows for Each Category -->
+                    <tr>
+                        <td><img src="attack-card.jpg" alt="Attack Card" width="100"></td>
+                        <td><img src="defense-card.jpg" alt="Defense Card" width="100"></td>
+                        <td><img src="spell-card.jpg" alt="Spell Card" width="100"></td>
+                        <td><img src="trap-card.jpg" alt="Trap Card" width="100"></td>
+                        <td><img src="equipment-card.jpg" alt="Equipment Card" width="100"></td>
+                    </tr>
+                    <!-- Additional rows can be dynamically generated from the database -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Deck Builder Column -->
+        <div class="deck-builder">
+            <div class="deck-header">My Deck</div>
+            <div class="deck-card">
+                <p>Name: Fireball</p>
+                <p>Type: Attack</p>
+            </div>
+            <!-- Cards added to the deck will appear dynamically here -->
+            <button class="save-deck">Save my Deck</button>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <div id="footer-placeholder"></div> <!-- Placeholder pour le footer -->
+</body>
+
+</html>

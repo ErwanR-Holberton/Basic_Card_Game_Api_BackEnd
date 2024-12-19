@@ -1,0 +1,235 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/* Général */
+body {
+    margin: 0;
+    padding-top: 150px;
+    padding-bottom: 200px;
+    font-family: Garamond;
+    display: flex;
+    justify-content: center;
+    align-self: flex-end;
+    min-height: 100vh;
+    background-color: #4E3B31;
+    /* bois sombre pour le fond */
+    color: #EAD8A6;
+}
+
+a {
+    text-decoration: underline;
+    color: #EAD8A6;
+    /* Texte Parchment Beige */
+    transition: color 0.3s ease; /* Animation de transition pour la couleur */
+}
+a:hover {
+    color: #C4A000; /* Couleur lors du survol de la souris */
+}
+
+
+
+.nav {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.nav a {
+    font-weight: bold;
+    font-size: 24px;
+
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user img {
+    height: 50px;
+}
+
+
+
+/*nav-link*/
+.nav-link {
+    text-decoration: none;
+    color: #EAD8A6;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background-color: #C4A000;
+    color: #4E3B31;
+}
+
+.main-content > {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 50px; /* taille entre chaque section */
+    padding-top: 20px; /* Ajout de padding pour éviter le collapse */
+    overflow: hidden; /* Pour forcer l'application des marges */
+
+}
+
+/* Section des images */
+.image-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Espacement entre les images */
+    align-items: center;
+    margin: 0 auto;
+    max-width: 90%;
+    gap: 20px;/* Limite la largeur totale de la section */
+}
+
+.game-image {
+    width: 100%; /* Chaque image prend environ la moitié de l'espace */
+    max-width: 250px; /* Limite la taille sur écrans larges */
+    border: 5px solid #C4A000; /* Bordure dorée */
+    border-radius: 10px; /* Coins arrondis */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Effet d'ombre */
+}
+
+/* Section des colonnes de texte */
+.text-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 40px auto;
+    max-width: 90%; /* Limite la largeur totale de la section */
+    gap: 20px; /* Espacement entre les colonnes */
+}
+
+.text-column {
+    background-color: #EAD8A6; /* Fond beige */
+    color: #2C3E50; /* Texte bleu foncé */
+    border: 3px solid #C4A000; /* Bordure dorée */
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Effet d'ombre */
+    flex: 1; /* Assure des tailles équilibrées */
+    min-width: 280px; /* Empêche les colonnes de devenir trop étroites */
+}
+.text-column a {
+    color: #2C3E50;
+    display: block; /* Affiche chaque lien comme un bloc */
+    margin: 5px 0; /* Ajoute un espacement vertical entre les liens */
+}
+
+.text-column a:hover {
+    color: #C4A000; /* Couleur lors du survol de la souris */
+}
+
+.separator {
+    border: none; /* Supprime les bordures standards */
+    height: 3px; /* Épaisseur du liseré */
+    background-color: #C4A000; /* Couleur dorée */
+    margin: 10px 0; /* Espacement au-dessus et en dessous */
+}
+
+.small-column {
+    flex: 1; /* Les colonnes extérieures prennent 1 unité d'espace chacune */
+}
+
+.large-column {
+    background-color: #5A5A5A; /* Même couleur que le footer */
+    color: #EAD8A6; /* Texte clair pour contraste */
+    flex: 2; /* La colonne centrale prend 2 unités d'espace */
+    text-align: center; /* Centrer le contenu textuel */
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .text-section {
+        flex-direction: column; /* Colonnes empilées verticalement */
+        gap: 20px;
+    }
+
+    .text-column {
+        width: 100%; /* Colonnes prennent toute la largeur */
+    }
+
+    .image-section {
+        justify-content: center;
+    }
+
+    .game-image {
+        max-width: 40%; /* Images ajustées pour un meilleur rendu */
+    }
+}
+
+@media (max-width: 768px) {
+    .image-section {
+        flex-direction: column; /* Images empilées verticalement */
+    }
+
+    .game-image {
+        width: 70%; /* Images prennent plus de place */
+        margin-bottom: 20px;
+    }
+
+    .text-section {
+        flex-direction: column; /* Colonnes empilées */
+    }
+
+    .text-column {
+        width: 100%; /* Colonne pleine largeur */
+    }
+
+    .nav {
+        flex-direction: column; /* Navigation empilée */
+        gap: 10px;
+    }
+
+    .nav a {
+        font-size: 18px; /* Taille ajustée */
+    }
+}
+
+/* Conteneur du bouton : centre le bouton sous la seconde colonne */
+.hexagon-button-container {
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    margin-top: 20px; /* Espacement entre la colonne centrale et le bouton */
+}
+/* Conteneur du bouton */
+.hexagon-button {
+    text-align: center;
+    width: 200px; /* Largeur du bouton */
+    height: 100px;
+    background-color: #355E3b; /* Couleur de fond, identique au header */
+    border: 3px solid #C4A000; /* Liseré doré */
+    border-radius: 10px; /* Coins arrondis pour le liseré */
+    display: flex;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Effet d'ombre */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Animation hover */
+}
+
+/* Texte à l'intérieur du bouton */
+.hexagon-button a {
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #C4A000; /* Texte doré */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+/* Ajout d'un effet hover */
+.hexagon-button:hover {
+    background-color: #C4A000; /* Fond doré */
+}
+
+.hexagon-button:hover a {
+    color: #4E3B31; /* Texte prend la couleur du fond original */
+}

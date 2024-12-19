@@ -1,0 +1,241 @@
+/* Général */
+body {
+    margin: 0;
+    padding-top: 100px;
+    padding-bottom: 200px;
+    font-family: Garamond;
+    justify-content: center;
+    background-color: #4E3B31;
+    /* bois sombre pour le fond */
+    color: #EAD8A6;
+}
+
+a {
+    text-decoration: underline;
+    color: #EAD8A6;
+    /* Texte Parchment Beige */
+    transition: color 0.3s ease; /* Animation de transition pour la couleur */
+}
+a:hover {
+    color: #C4A000; /* Couleur lors du survol de la souris */
+}
+
+
+.nav {
+    display: flex;
+    gap: 20px;
+}
+
+.nav a {
+    font-weight: bold;
+    font-size: 24px;
+
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user img {
+    height: 50px;
+}
+
+
+
+/*nav-link*/
+.nav-link {
+    text-decoration: none;
+    color: #EAD8A6;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background-color: #C4A000;
+    color: #4E3B31;
+}
+header, footer {
+    background-color: #2C3E50;
+    color: #EAD8A6;
+    padding: 1rem;
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+    margin: 20px 0;
+    color: #EAD8A6;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 20px;
+}
+
+.card-table {
+    flex: 2;
+    background-color: #2C3E50;
+    border: 3px solid #C4A000;
+    border-radius: 5px;
+    overflow: auto;
+    max-height: 600px;
+}
+
+.card-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.card-table th {
+    position: sticky;
+    top: 0;
+    background-color: #2C3E50;
+    color: #EAD8A6;
+    border-bottom: 3px solid #C4A000;
+    padding: 10px;
+}
+
+.card-table td {
+    padding: 10px;
+    text-align: center;
+}
+
+/* Deck Builder Column */
+.deck-builder {
+    flex: 1;
+    background-color: #EAD8A6;
+    border: 4px solid #C4A000;
+    border-radius: 5px;
+}
+.deck-header {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    border: 4px solid #C4A000;
+    background-color: #EAD8A6;
+	color:#C4A000
+}
+
+.deck-builder h2 {
+    text-align: center;
+    color: #2C3E50;
+}
+
+.deck-card {
+    background-color: #355E3B;
+    margin: 10px 20px;
+    padding: 5px;
+    border-radius: 20px;
+    color: #EAD8A6;
+}
+
+.save-deck {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+    background-color: #355E3B;
+    color: #EAD8A6;
+	margin-bottom: 5px;
+    padding: 10px 20px;
+    border: 4px solid #C4A000;
+    font-size: 16px;
+    cursor: pointer;
+	border-radius: 20px;
+	text-align: center;
+
+}
+
+
+.save-deck:hover {
+    background-color: #2C3E50;
+    color: #EAD8A6;
+}
+
+/* Responsive Design */
+/* For screens 1024px and smaller */
+@media (max-width: 1024px) {
+    .nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav a {
+        font-size: 20px;
+    }
+
+    .user img {
+        height: 40px;
+    }
+
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card-table {
+        max-height: 400px;
+    }
+
+    .deck-header {
+        font-size: 20px;
+    }
+
+    .save-deck {
+        font-size: 14px;
+    }
+}
+
+/* For screens 768px and smaller */
+@media (max-width: 768px) {
+    header, footer {
+        font-size: 14px;
+        padding: 0.5rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .nav a {
+        font-size: 18px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .card-table {
+        flex: 1;
+        max-height: 300px;
+    }
+
+    .deck-header {
+        font-size: 18px;
+    }
+
+    .deck-builder {
+        border-width: 2px;
+    }
+
+    .deck-card {
+        margin: 5px 10px;
+        padding: 5px;
+        font-size: 0.9rem;
+    }
+
+    .save-deck {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+}
