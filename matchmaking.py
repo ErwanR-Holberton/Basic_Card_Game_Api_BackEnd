@@ -1,15 +1,47 @@
 from flask_socketio import SocketIO, emit
 from flask import request
-from database.database import verify_user, create_connection, get_user_selected_deck_by_id, get_user_id_by_username, get_cards_from_deck
+from database.database import verify_user, create_connection, get_user_selected_deck_by_id, get_user_id_by_username, get_cards_from_deck, get_all_cards
 from generate_token import generate_token, verify_token
 import random, ast
-
 
 socketio = SocketIO()
 
 users = {}  # Stores user states
 user_ids = {}
 waiting_queue = []  # Queue of users waiting for a match
+
+def filter_cards():
+    conn = create_connection()
+    cards = get_all_cards(conn)
+    conn.close()
+    return {
+        row[0]: [value for idx, value in enumerate(row) if idx not in [0, 1, 4, 5]]
+        for row in cards
+    }
+
+def test_card_type1(card_id_string, type_string):
+    card_id = int(card_id_string)
+    return type_string == loaded_cards[card_id][0]
+
+loaded_cards = filter_cards()
+print(loaded_cards)
+print(test_card_type1("1", "Equipement"))
+
+class Phase:
+    def __init__(self):
+        self.phases = ["Draw", "Preparation", "Reveal", "Action", "Resolve", "Discard"]
+        self.current_index = 0  # Start at the first phase
+
+    def next_phase(self):
+        self.current_index = (self.current_index + 1) % len(self.phases)  # Increment and wrap around
+
+    @property
+    def current_phase(self):
+        return self.phases[self.current_index]  # Return the current phase
+
+    def is_phase(self, phase_name):
+        return self.current_phase.lower() == phase_name.lower()  # Case-insensitive comparison
+
 
 def update_player_status(player, status):
     socketio.emit('status', {'state': status}, to=player)
@@ -29,7 +61,6 @@ def game_login(data):
     else:
         user_id = None
     conn.close()
-    print(f"{user_id}")
     emit('game_login_response', {'user_id': user_id}, to=sid)
 
 def get_deck(sid):
@@ -57,7 +88,8 @@ class Game_Match():
     decks = []
     cards_in_hand = [[], []]
     cards_in_pile = [[], []]
-    cards_on_board = [[], []]
+    cards_on_board = [[0] * 6, [0] * 6]
+    cards_of_other_player = []
 
     def __init__(self, p1, p2):
         self.players.append(p1)
@@ -69,7 +101,8 @@ class Game_Match():
 
         self.decks.append(get_deck(p1))
         self.decks.append(get_deck(p2))
-        print(self.decks, type(self.decks[0]))
+
+        self.phase = Phase()
         self.init_decks()
         print("new match", self.players)
 
@@ -80,7 +113,6 @@ class Game_Match():
         self.cards_in_pile[1] = self.decks[1][:]
         random.shuffle(self.cards_in_pile[1])
 
-
     def pick_cards_for_player(self, player_index, quantity):
         cards_picked, cards_remaining = pick(quantity, self.cards_in_pile[player_index])
         self.cards_in_hand[player_index] += cards_picked
@@ -88,6 +120,11 @@ class Game_Match():
         self.cards_in_pile[player_index] = cards_remaining
 
     def start_game(self):
+        Q1 = len(self.decks[0])
+        Q2 = len(self.decks[1])
+        #send players their amount of cards
+        socketio.emit('set_deck', {'you': Q1, 'oponent': Q2}, to=self.players[0])
+        socketio.emit('set_deck', {'you': Q2, 'oponent': Q1}, to=self.players[1])
         #pick cards
         self.pick_cards_for_player(0, 5)
         self.pick_cards_for_player(1, 5)
@@ -96,10 +133,8 @@ class Game_Match():
         print(sid, type(sid))
         self.answers[sid] = True
         if len(self.answers) == 2:
+            self.answers = {}
             self.start_game()
-
-
-
 
     def delete_match(self): #empties the refs in instances
         print("ending match", self.players)
@@ -142,6 +177,69 @@ class Game_Match():
         print("setting other to connected")
         update_player_status(other_player, 'connected')
         self.delete_match()
+
+    def get_player_index_from_sid(self, player_sid):
+        if player_sid == self.players[0]:
+            return 0
+        elif player_sid == self.players[1]:
+            return 1
+        print("Wrong Sid in phase_validation")
+        return None
+
+    def phase_validation(self, player_sid, cards, phase):
+        print("Validating phase:", phase)
+        player_index = self.get_player_index_from_sid(player_sid)
+        for card in cards:
+            if card not in self.cards_in_hand[player_index]:
+                print(f"Wrong card id, card should not be in user hand: {card}")
+                self.phase_response(False, player_sid)
+                return
+        self.phase_response(True, player_sid)
+        self.answers[player_sid] = True
+        if len(self.answers) == 2:
+            self.answers = {}
+            self.phase.next_phase()
+            other_player_index = 1 - player_index
+            self.place_cards(cards, player_index, self.cards_of_other_player, other_player_index)
+            socketio.emit('next_phase', {'timer': 30, 'your_cards':cards, 'oponent_cards':self.cards_of_other_player, 'phase':self.phase.current_phase }, to=player_sid)
+            socketio.emit('next_phase', {'timer': 30, 'your_cards':self.cards_of_other_player, 'oponent_cards':cards, 'phase':self.phase.current_phase }, to=self.players[other_player_index])
+        else:
+            self.cards_of_other_player = cards
+
+    def card_validation(self, player_sid, card_id, card_slot, phase):
+        player_index = self.get_player_index_from_sid(player_sid)
+        if phase != self.phase.current_phase:
+            print("wrong phase")
+            return
+        print("correct phase")
+
+        if card_id not in self.cards_in_hand[player_index]:
+            print("card not in hand")
+            print(self.cards_in_hand[player_index])
+            return
+        print("card in hand")
+
+        if 0 <= card_slot < 3 and not test_card_type1(card_id, "Equipement"):
+            print("card in slot 0 - 2 not an equipement")
+        if 2 < card_slot < 7 and not test_card_type1(card_id, "Trap"):
+            print("card in slot 3 - 6 not a trap")
+
+        print("good card")
+
+    def place_cards(self, cards_p1, p1_index, cards_p2, p2_index):
+        for card in cards_p1:
+            self.cards_in_hand[p1_index].remove(card)
+            self.cards_on_board[p1_index].append(card)
+
+        for card in cards_p2:
+            self.cards_in_hand[p2_index].remove(card)
+            self.cards_on_board[p2_index].append(card)
+
+    def phase_response(self, is_accepting, player_sid):
+        if is_accepting:
+            socketio.emit('phase_validation_accepted', {}, to=player_sid)
+        else:
+            socketio.emit('phase_validation_denied', {}, to=player_sid)
 
 @socketio.on('connect')
 def handle_connect():
@@ -202,6 +300,33 @@ def user_says_ready():
     sid = request.sid
     match_instance = Game_Match.instances[sid]
     match_instance.are_users_ready(sid)
+
+@socketio.on('phase_validation')
+def phase_validation(data):
+    sid = request.sid
+    match_instance = Game_Match.instances[sid]
+    cards = data['cards']
+    phase = data['phase']
+    match_instance.phase_validation(sid, cards, phase)
+
+@socketio.on('card_validation')
+def card_validation(data):
+    sid = request.sid
+    match_instance = Game_Match.instances[sid]
+    card = data['card']
+    slot = data['slot']
+    phase = data['phase']
+    print(f"received validation {card}, {slot}, {phase}")
+    match_instance.card_validation(sid, card, slot, phase)
+
+@socketio.on('player_move')
+def player_move(data):
+    sid = request.sid
+    match_instance = Game_Match.instances[sid]
+    position = data['position']
+    other_player = match_instance.get_other_player(sid)
+    emit('player_move', {'position': position }, to=other_player)
+
 
 @socketio.on('end_match')
 def end_match():

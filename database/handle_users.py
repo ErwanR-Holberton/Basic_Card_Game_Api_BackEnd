@@ -21,7 +21,6 @@ def verify_user(conn, username, password):
 
     stored_hashed_password, stored_salt, email = user_data
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), stored_salt.encode('utf-8'))
-    print(hashed_password, stored_hashed_password.encode('utf-8'))
     return hashed_password == stored_hashed_password.encode('utf-8')
 
 @Read_DB

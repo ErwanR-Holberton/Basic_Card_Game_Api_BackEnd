@@ -82,7 +82,7 @@ def get_cards_routes_for_unity():
     conn = create_connection()
     cards = get_all_cards(conn)
     conn.close()
-    return [(card[0], card[1], card[5]) for card in cards]
+    return [(card[0], card[1], card[2], card[3], card[5]) for card in cards]
 
 #---------------------------------------------
 

@@ -1,7 +1,7 @@
 try:
     from database.DB_config import host, user, password, database
 except:
-    print("Ask Developper for DB_Config file")
+    print("Ask Developper for DB_config file")
     exit(1)
 
 import mysql.connector
@@ -15,7 +15,7 @@ def create_connection():
     """Create a database connection."""
     try:
         conn = mysql.connector.connect(host=host, user=user, password=password, database=database)
-        print("Connection successful!")
+        #print("Connection successful!")
         return conn
     except Error as e:
         print(f"Error connecting to MariaDB Platform: {e}")

@@ -30,12 +30,10 @@ def check_if_deck_exists(cursor, card_id_list):
     SQL_Command = """SELECT COUNT(*) FROM decks WHERE cards = %s;"""
     cursor.execute(SQL_Command, (json.dumps(card_id_list), ))
     result = cursor.fetchone()
-    print(result)
     return True
 
 @Read_DB
 def get_cards_from_deck(cursor, deck_id):
-    print("get cards", deck_id, type(deck_id))
     SQL_Command = """SELECT cards FROM decks WHERE deck_id = %s;"""
     cursor.execute(SQL_Command, (str(deck_id),))
     result = cursor.fetchone()

@@ -15,7 +15,7 @@ def get_all_cards(cursor):
     new_cards = []
     for card in cards:
         new_cards.append([card[0], card[1], card[2], card[3], card[4], "Cards/New_Small/" + card[1] + ".png"])
-        print(new_cards[-1])
+        #print(new_cards[-1])
     return new_cards
 
 @Read_DB
