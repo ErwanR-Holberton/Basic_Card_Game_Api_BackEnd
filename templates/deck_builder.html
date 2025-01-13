@@ -1,21 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-signin-client_id" content="203654317993-ultcan7rulqq8893hpf5m263fn8lq37v.apps.googleusercontent.com">
+    <meta name="google-signin-client_id"
+        content="203654317993-ultcan7rulqq8893hpf5m263fn8lq37v.apps.googleusercontent.com">
     <title>GKE Card Game: Deck Builder</title>
-    <style>
-        .card {
-            max-width: 100px;
-        }
-    </style>
+    <link rel="stylesheet" href="../static/Deck_Builder_Styles.css">
+    {% include 'style/navbar.html' %}
 </head>
+
 <body>
     {% include 'navbar.html' %}
-    <h1>Deck Builder</h1>
-	{% for card in cards %}
-        <img class="card" id="{{ card[0] }}" src="{{ url_for('static', filename=card[5]) }}" alt="{{ card[1] }}">
-	{% endfor %}
+
+    <h1>Build your Deck</h1>
+
+    <div class="container">
+        <!-- Card Table -->
+        <div class="card-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Equipement</th>
+                        <th>Action</th>
+                        <th>Piège</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <!-- Example Card Rows for Each Category -->
+                        <!-- Colonne Equipement -->
+                        <td>
+                            {% for card in cards if card[2] == "Equipement" %}
+                            <div id="available-card" draggable="true">
+                                <img class="card" data-id="{{ card[0] }}"
+                                    src="{{ url_for('static', filename=card[5]) }}" alt="{{ card[1] }}" width="100">
+                            </div>
+                            {% endfor %}
+                        </td>
+                        <!-- Colonne Action -->
+                        <td>
+                            {% for card in cards if card[2] == "Action" %}
+                            <div id="available-card" draggable="true">
+                                <img class="card" data-id="{{ card[0] }}"
+                                    src="{{ url_for('static', filename=card[5]) }}" alt="{{ card[1] }}" width="100">
+                            </div>
+                            {% endfor %}
+                        </td>
+                        <!-- Colonne Piège -->
+                        <td>
+                            {% for card in cards if card[2] == "Piège" %}
+                            <div id="available-card" draggable="true">
+                                <img class="card" data-id="{{ card[0] }}"
+                                    src="{{ url_for('static', filename=card[5]) }}" alt="{{ card[1] }}" width="100">
+                            </div>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    <!-- Additional rows can be dynamically generated from the database -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Deck Builder Column -->
+        <div class="deck-builder">
+            <div class="deck-header">My Deck</div>
+            <div id="deck-card" class="deck-container" >
+            </div>
+            <button class="save-deck">Save my Deck</button>
+        </div>
+
+
+        <script src="../static/Deck_builder_script.js"></script>
+        <div id="footer-placeholder"></div> <!-- Placeholder pour le footer -->
 </body>
+
 </html>
