@@ -1,0 +1,145 @@
+.container {
+    display: flex;
+    flex-wrap: nowrap;
+    /* Empêche les éléments de se replier */
+    justify-content: space-between;
+    /* Espace uniforme entre les éléments */
+    gap: 20px;
+    /* Espacement entre la table et le deck builder */
+    padding: 20px;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.card-table {
+    flex: 2;
+    background-color: #2C3E50;
+    border: 3px solid #C4A000;
+    border-radius: 5px;
+    overflow: auto;
+    max-height: 600px;
+}
+
+#available-card {
+    display: flex;
+    height: fit-content;
+    padding: 10px;
+}
+
+
+
+.card-table table {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.card-table tr {
+    display: flex;
+}
+
+.card-table th,
+.card-table td {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 4;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #C4A000;
+    word-wrap: break-word;
+}
+
+.deck-builder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #EAD8A6;
+    border: 4px solid #C4A000;
+    border-radius: 5px;
+    max-width: 300px;
+    /* Fixe une largeur max */
+}
+
+.deck-builder h2 {
+    text-align: center;
+    color: #2C3E50;
+}
+
+#deck-card {
+    display: flex;
+    flex: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    background-color: #355E3B;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    color: #EAD8A6;
+    text-align: center;
+}
+
+#deck-card img {
+    margin: 5px;
+    border: 2px solid #C4A000;
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#deck-card img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.save-deck {
+    margin-top: auto;
+    /* Pousse le bouton en bas de la div */
+    background-color: #355E3B;
+    color: #EAD8A6;
+    padding: 10px 20px;
+    border: 4px solid #C4A000;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.save-deck:hover {
+    background-color: #2C3E50;
+    color: #EAD8A6;
+}
+
+/* Responsive Design */
+/* Pour les écrans 1024px et moins */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card-table {
+        max-height: 400px;
+    }
+
+    .deck-builder {
+        max-width: 100%;
+        /* Ajuste la largeur pour s'adapter */
+    }
+}
+
+/* Pour les écrans 768px et moins */
+@media (max-width: 768px) {
+    .card-table {
+        max-height: 300px;
+    }
+
+    .save-deck {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+}
