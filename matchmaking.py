@@ -1,14 +1,19 @@
 from flask_socketio import SocketIO, emit
 from flask import request
-from database.database import verify_user, create_connection, get_user_selected_deck_by_id, get_user_id_by_username, get_cards_from_deck, get_all_cards
+from database.database import verify_user, create_connection, get_user_selected_deck_by_id, get_user_id_by_username, get_cards_from_deck, get_all_cards, get_effect_cards, get_all_effects
 from generate_token import generate_token, verify_token
 import random, ast
+from Classes.DamageCalculator import DamageCalculator
+from Classes.Phase import Phase
 
 socketio = SocketIO()
 
 users = {}  # Stores user states
 user_ids = {}
 waiting_queue = []  # Queue of users waiting for a match
+
+is_testing = True
+testdeck = ["1", "2", "5", "6", "10", "17", "19", "16", "3", "4", "8", "9", "27", "29", "30", "31"]
 
 def filter_cards():
     conn = create_connection()
@@ -19,29 +24,33 @@ def filter_cards():
         for row in cards
     }
 
-def test_card_type1(card_id_string, type_string):
-    card_id = int(card_id_string)
-    return type_string == loaded_cards[card_id][0]
+def get_card_type1(card_id):
+    return loaded_cards[card_id][0]
+def get_card_type2(card_id):
+    return loaded_cards[card_id][1]
+
+def load_effects():
+    conn = create_connection()
+    effects = get_all_effects(conn)
+    effect_cards = get_effect_cards(conn)
+    conn.close()
+
+    effect_by_card = {}
+    for card_id, effect_id in effect_cards:
+        if card_id not in effect_by_card:
+            effect_by_card[card_id] = []
+        if effect_id in effects:
+            effect_by_card[card_id].append(effects[effect_id])
+
+    return effect_by_card
 
 loaded_cards = filter_cards()
+effect_by_card = load_effects()
 print(loaded_cards)
-print(test_card_type1("1", "Equipement"))
+print(effect_by_card)
+print(effect_by_card[2])
 
-class Phase:
-    def __init__(self):
-        self.phases = ["Draw", "Preparation", "Reveal", "Action", "Resolve", "Discard"]
-        self.current_index = 0  # Start at the first phase
-
-    def next_phase(self):
-        self.current_index = (self.current_index + 1) % len(self.phases)  # Increment and wrap around
-
-    @property
-    def current_phase(self):
-        return self.phases[self.current_index]  # Return the current phase
-
-    def is_phase(self, phase_name):
-        return self.current_phase.lower() == phase_name.lower()  # Case-insensitive comparison
-
+print(get_card_type2(33))
 
 def update_player_status(player, status):
     socketio.emit('status', {'state': status}, to=player)
@@ -74,8 +83,9 @@ def get_deck(sid):
     else:
         cards = None
     conn.close()
+    print(f"get deck {cards}")
     if not cards:
-        return ["2", "4", "6", "8", "10", "12", "14", "16", "18"]
+        return ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" ,"16", "17", "18", "19", "20"]
     return cards
 
 def pick(quantity, cards):
@@ -84,17 +94,19 @@ def pick(quantity, cards):
 class Game_Match():
     instances = {} #class variable to store match reference for each player: {player_id: match}
     players = [] #used in instances to store player 1 and player 2
-    answers = {} #used in instances to store their answers {player_id: 'yes'"or 'no'}
-    decks = []
-    cards_in_hand = [[], []]
-    cards_in_pile = [[], []]
-    cards_on_board = [[0] * 6, [0] * 6]
-    cards_of_other_player = []
 
     def __init__(self, p1, p2):
-        self.players.append(p1)
-        self.players.append(p2)
-        self.answers = {}
+        self.players = [p1, p2]
+        self.decks = []
+        self.answers = {} #used in instances to store their answers {player_id: 'yes'"or 'no'}
+        self.cards_in_hand = [[], []]
+        self.cards_in_pile = [[], []]
+        self.cards_in_trash = [[], []]
+        self.cards_on_board = [[0] * 6, [0] * 6] #index 0-2 Equipement 3-5 Traps | store the id
+        self.card_timers = [[None] * 6, [None] * 6]
+        self.cards_of_other_player = []
+        self.cards_played_this_turn = [[], []] # [card_id, slot, list of effects]
+        self.damageCalculator = DamageCalculator()
 
         self.__class__.instances[p1] = self
         self.__class__.instances[p2] = self
@@ -103,8 +115,15 @@ class Game_Match():
         self.decks.append(get_deck(p2))
 
         self.phase = Phase()
+        print(self.decks[0])
+        print(self.decks[1])
         self.init_decks()
         print("new match", self.players)
+        print(self.decks[0])
+        print(self.decks[1])
+        print("board")
+        print(self.cards_on_board[0])
+        print(self.cards_on_board[1])
 
     def init_decks(self):
         #put the cards in the pile and shuffle
@@ -114,10 +133,12 @@ class Game_Match():
         random.shuffle(self.cards_in_pile[1])
 
     def pick_cards_for_player(self, player_index, quantity):
+        print(f"picking {quantity} cards")
         cards_picked, cards_remaining = pick(quantity, self.cards_in_pile[player_index])
         self.cards_in_hand[player_index] += cards_picked
-        socketio.emit('pick_cards', {'cards': cards_picked}, to=self.players[player_index])
+        #socketio.emit('pick_cards', {'cards': cards_picked}, to=self.players[player_index])
         self.cards_in_pile[player_index] = cards_remaining
+        return cards_picked
 
     def start_game(self):
         Q1 = len(self.decks[0])
@@ -126,8 +147,16 @@ class Game_Match():
         socketio.emit('set_deck', {'you': Q1, 'oponent': Q2}, to=self.players[0])
         socketio.emit('set_deck', {'you': Q2, 'oponent': Q1}, to=self.players[1])
         #pick cards
-        self.pick_cards_for_player(0, 5)
-        self.pick_cards_for_player(1, 5)
+        cards_p1 = self.pick_cards_for_player(0, 7)
+        cards_p2 = self.pick_cards_for_player(1, 7)
+
+        print("Starting game hands:")
+        print(self.cards_in_hand[0], cards_p1)
+        print(self.cards_in_hand[1], cards_p2)
+        print("----------")
+        print(self.decks[0])
+        print(self.decks[1])
+        self.next_phase(self.players[0], self.players[1], cards_p1, cards_p2)
 
     def are_users_ready(self, sid):
         print(sid, type(sid))
@@ -200,33 +229,66 @@ class Game_Match():
             self.answers = {}
             self.phase.next_phase()
             other_player_index = 1 - player_index
-            self.place_cards(cards, player_index, self.cards_of_other_player, other_player_index)
-            socketio.emit('next_phase', {'timer': 30, 'your_cards':cards, 'oponent_cards':self.cards_of_other_player, 'phase':self.phase.current_phase }, to=player_sid)
-            socketio.emit('next_phase', {'timer': 30, 'your_cards':self.cards_of_other_player, 'oponent_cards':cards, 'phase':self.phase.current_phase }, to=self.players[other_player_index])
+            #self.place_cards(cards, player_index, self.cards_of_other_player, other_player_index)
+            self.next_phase(player_sid, self.players[other_player_index], cards, self.cards_of_other_player)
         else:
             self.cards_of_other_player = cards
 
     def card_validation(self, player_sid, card_id, card_slot, phase):
         player_index = self.get_player_index_from_sid(player_sid)
+        card_id = card_id.lstrip("0") #input is format "001" and we need "1"
+
+        print(f"card id: {card_id} {int(card_id)}")
+
         if phase != self.phase.current_phase:
             print("wrong phase")
             return
-        print("correct phase")
+
+        if phase != "Preparation" and phase != "Action" and phase != "Discard":
+            print("Not prep or action or discard")
+            return
+        #print("correct phase")
 
         if card_id not in self.cards_in_hand[player_index]:
             print("card not in hand")
             print(self.cards_in_hand[player_index])
             return
-        print("card in hand")
+        #print("card in hand")
 
-        if 0 <= card_slot < 3 and not test_card_type1(card_id, "Equipement"):
+        card_type = get_card_type1(int(card_id))
+
+        if 0 <= card_slot < 3 and not card_type == "Equipement":
             print("card in slot 0 - 2 not an equipement")
-        if 2 < card_slot < 7 and not test_card_type1(card_id, "Trap"):
+            return
+        if 2 < card_slot < 6 and not card_type == "Piège":
             print("card in slot 3 - 6 not a trap")
+            return
 
-        print("good card")
+        if card_slot < 6: #if not action or discard place card on board
+            if self.cards_on_board[player_index][card_slot] != 0:
+                print("card slot already taken")
+                return
+            self.cards_on_board[player_index][card_slot] = card_id
+            self.card_timers[player_index][card_slot] = 3
+
+        #print("good card")
+        self.cards_in_hand[player_index].remove(card_id)
+        if 2 < card_slot < 6:
+            card_id = -1 # -1 for hidden card cause its a trap
+
+        if card_id != -1:
+            card_effects = effect_by_card[int(card_id)]
+        if card_type == "Equipement":
+            self.apply_effects(player_sid, card_effects)
+        if card_slot == 7:
+            print("trashing card")
+            self.cards_in_trash[player_index].append(card_id)
+        if card_slot == 7 or card_type == "Action" or card_type == "Equipement":
+            self.cards_played_this_turn[player_index].append([card_id, card_slot, card_effects])
+        #print("card effects:", card_effects)
 
     def place_cards(self, cards_p1, p1_index, cards_p2, p2_index):
+        print("dead function called !?")
         for card in cards_p1:
             self.cards_in_hand[p1_index].remove(card)
             self.cards_on_board[p1_index].append(card)
@@ -240,6 +302,160 @@ class Game_Match():
             socketio.emit('phase_validation_accepted', {}, to=player_sid)
         else:
             socketio.emit('phase_validation_denied', {}, to=player_sid)
+
+    def check_timers(self, phase):
+        if phase != "Action":
+            return
+
+        for i in range(len(self.card_timers[0])):
+            if self.card_timers[0][i] != None:
+                self.card_timers[0][i] -= 1
+            if self.card_timers[0][i] == 0:
+                card_id = self.cards_on_board[0][i]
+                self.cards_in_trash.append(card_id)
+                self.cards_on_board[0][i] = 0
+
+        for i in range(len(self.card_timers[1])):
+            if self.card_timers[1][i] != None:
+                self.card_timers[1][i] -= 1
+            if self.card_timers[1][i] == 0:
+                card_id = self.cards_on_board[1][i]
+                self.cards_in_trash.append(card_id)
+                self.cards_on_board[1][i] = 0
+
+    def apply_effects(self, player_sid, effects):
+        player_index = player_sid == self.players[1]
+        for effect in effect_by_card[3]:
+            if effect[2] == 'self':
+                target = player_index
+            elif effect[2] == 'enemy':
+                target = 1 - player_index
+            self.damageCalculator.Add_To_Stat(target, effect[0], effect[1])
+
+    def resolve(self):
+        p1_bonus_atk = 0
+        p1_bonus_def = 0
+        p2_bonus_atk = 0
+        p2_bonus_def = 0
+        p1_posture = "Attack"
+        p2_posture = "Attack"
+
+        if len(self.cards_played_this_turn[0]):
+            p1_card = self.cards_played_this_turn[0][0]
+            p1_posture = get_card_type2(int(p1_card[0]))
+            p1_effect = p1_card[2][0]
+            if p1_effect[0] == "attack":
+                p1_bonus_atk = p1_effect[1]
+            elif p1_effect[0] == "defense":
+                p1_bonus_def = p1_effect[1]
+
+        if len(self.cards_played_this_turn[1]):
+            p2_card = self.cards_played_this_turn[1][0]
+            p2_posture = get_card_type2(int(p2_card[0]))
+            p2_effect = p2_card[2][0]
+            if p2_effect[0] == "attack":
+                p2_bonus_atk = p2_effect[1]
+            elif p2_effect[0] == "defense":
+                p2_bonus_def = p2_effect[1]
+
+        print(f"p1 {p1_bonus_atk} {p1_bonus_def}")
+        print(f"p2 {p2_bonus_atk} {p2_bonus_def}")
+
+
+        p1_damage, p1_alive = self.damageCalculator.Attack(1, 0, p2_posture, p1_posture, p2_bonus_atk, p1_bonus_def)
+        p2_damage, p2_alive = self.damageCalculator.Attack(0, 1, p1_posture, p2_posture, p1_bonus_atk, p2_bonus_def)
+
+        if p1_alive and p2_alive:
+            game_status = "Unfinished"
+        elif (not p1_alive) and (not p2_alive):
+            game_status = "Draw"
+        elif p1_alive:
+            game_status = "p1 win"
+        elif p2_alive:
+            game_status = "p2 win"
+        return p1_damage, p2_damage, game_status
+
+    def next_phase(self, p1, p2 , cards_p1 = [], cards_p2 = []):
+        phase = self.phase.current_phase
+        timer = self.phase.timer()
+
+        print(f"cards played this time: {self.cards_played_this_turn}")
+        print(f"{cards_p1}, {cards_p2}")
+        self.check_timers(phase)
+
+        if p1 == self.players[0]:
+            p1_index = 0
+            p2_index = 1
+        else:
+            p1_index = 1
+            p2_index = 0
+
+        message1 = {'timer': timer, 'phase': phase }
+        message2 = {'timer': timer, 'phase': phase }
+
+        if self.phase.is_phase("Draw"):
+            discard_p1, discard_p2 = self.force_discard(p1 == self.players[0])
+            if cards_p1 == []:
+                cards_p1 = self.pick_cards_for_player(p1_index, 2)
+            if cards_p2 == []:
+                cards_p2 = self.pick_cards_for_player(p2_index, 2)
+
+            count_discarded_p1 = len(self.cards_played_this_turn[p1_index])
+            count_discarded_p2 = len(self.cards_played_this_turn[p2_index])
+
+            message1['your_cards'] = cards_p1
+            message2['your_cards'] = cards_p2
+            message1['discarded_cards'] = discard_p1
+            message2['discarded_cards'] = discard_p2
+            message1['count_discarded'] = len(discard_p2) + count_discarded_p2
+            message2['count_discarded'] = len(discard_p1) + count_discarded_p1
+
+        #send to the oponent wich card were played
+        if self.phase.is_phase("Reveal"):
+            message1["cards_to_reveal"] = self.cards_played_this_turn[p2_index]
+            message1["own_reveal"] = self.cards_played_this_turn[p1_index]
+            message2["cards_to_reveal"] = self.cards_played_this_turn[p1_index]
+            message2["own_reveal"] = self.cards_played_this_turn[p2_index]
+
+        if self.phase.is_phase("Resolve"):
+            p1_damage, p2_damage, game_status = self.resolve()
+            message1["your_damage"] = p1_damage
+            message2["your_damage"] = p2_damage
+            message1["oponent_damage"] = p2_damage
+            message2["oponent_damage"] = p1_damage
+            if game_status == "p1 win":
+                message1["game_status"] = "you win"
+                message2["game_status"] = "you loose"
+            elif game_status == "p2 win":
+                message2["game_status"] = "you win"
+                message1["game_status"] = "you loose"
+            else:
+                message1["game_status"] = game_status
+                message2["game_status"] = game_status
+
+
+        socketio.emit('next_phase', message1, to=p1)
+        socketio.emit('next_phase', message2, to=p2)
+        self.cards_played_this_turn = [[], []]
+
+    def force_discard(self, is_p1):
+        discard_p1 = []
+        discard_p2 = []
+        while len(self.cards_in_hand[0]) > 7:
+            random_index = random.randint(0, len(self.cards_in_hand[0]) - 1)
+            discarded_card = self.cards_in_hand[0].pop(random_index)
+            discard_p1.append(discarded_card)
+
+
+        if len(self.cards_in_hand[1]) > 7:
+            random_index = random.randint(0, len(self.cards_in_hand[1]) - 1)
+            discarded_card = self.cards_in_hand[1].pop(random_index)
+            discard_p1.append(discarded_card)
+
+        if is_p1:
+            return discard_p1, discard_p2
+        return discard_p2, discard_p1
+
 
 @socketio.on('connect')
 def handle_connect():
@@ -326,7 +542,6 @@ def player_move(data):
     position = data['position']
     other_player = match_instance.get_other_player(sid)
     emit('player_move', {'position': position }, to=other_player)
-
 
 @socketio.on('end_match')
 def end_match():

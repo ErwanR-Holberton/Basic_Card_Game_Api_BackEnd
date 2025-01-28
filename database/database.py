@@ -6,10 +6,11 @@ except:
 
 import mysql.connector
 from mysql.connector import Error
-from werkzeug.security import generate_password_hash, check_password_hash
+#from werkzeug.security import generate_password_hash, check_password_hash
 from database.handle_users import *
 from database.handle_cards import *
 from database.handle_decks import *
+from database.handle_effects import *
 
 def create_connection():
     """Create a database connection."""

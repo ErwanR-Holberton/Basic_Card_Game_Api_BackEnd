@@ -15,6 +15,7 @@ def add_deck_to_user(cursor, user_id, new_deck_id):
     WHERE id = %s
     AND NOT JSON_CONTAINS(decks, %s);"""
     cursor.execute(SQL_Command, (new_deck_id, user_id, new_deck_id))
+    return True
 
 @Commit_DB
 def remove_deck_from_user(cursor, user_id, deck_id_to_remove):
@@ -30,7 +31,7 @@ def check_if_deck_exists(cursor, card_id_list):
     SQL_Command = """SELECT COUNT(*) FROM decks WHERE cards = %s;"""
     cursor.execute(SQL_Command, (json.dumps(card_id_list), ))
     result = cursor.fetchone()
-    return True
+    return result[0] == 1
 
 @Read_DB
 def get_cards_from_deck(cursor, deck_id):
@@ -38,3 +39,9 @@ def get_cards_from_deck(cursor, deck_id):
     cursor.execute(SQL_Command, (str(deck_id),))
     result = cursor.fetchone()
     return result[0] if result else None
+
+@Commit_DB
+def set_selected_deck_by_uid(cursor, user_id, new_deck_id):
+    SQL_Command = """UPDATE users SET selected_deck = %s WHERE id = %s"""
+    cursor.execute(SQL_Command, (new_deck_id, user_id,))
+    return True
