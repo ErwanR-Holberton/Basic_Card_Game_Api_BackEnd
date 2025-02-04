@@ -46,11 +46,6 @@ def load_effects():
 
 loaded_cards = filter_cards()
 effect_by_card = load_effects()
-print(loaded_cards)
-print(effect_by_card)
-print(effect_by_card[2])
-
-print(get_card_type2(33))
 
 def update_player_status(player, status):
     socketio.emit('status', {'state': status}, to=player)
@@ -115,15 +110,7 @@ class Game_Match():
         self.decks.append(get_deck(p2))
 
         self.phase = Phase()
-        print(self.decks[0])
-        print(self.decks[1])
         self.init_decks()
-        print("new match", self.players)
-        print(self.decks[0])
-        print(self.decks[1])
-        print("board")
-        print(self.cards_on_board[0])
-        print(self.cards_on_board[1])
 
     def init_decks(self):
         #put the cards in the pile and shuffle

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Kingdom Battleground-forum page</title>
+	<link rel="stylesheet" href="/static/css/Forum_styles.css">
+</head>
+
+
+
+<body>
+	<div id="header-placeholder"></div>
+
+	<h1 class="page-title">Forum</h1>
+	<h2>Topic ID: {{ topic_id }}</h2>
+
+	<!-- Forum Topics Section -->
+	<section class="forum-topics">
+		<button class="arrow-left">&lt;</button>
+		<div class="topics-container">
+			<button onclick="fetchData(1)">General Discussion</button>
+			<button onclick="fetchData(2)">Game Updates</button>
+			<button onclick="fetchData(3)">Strategies</button>
+			<button onclick="fetchData(4)">Technical Support</button>
+			<button onclick="fetchData(5)">Community Creations</button>
+		</div>
+		<button class="arrow-right">&gt;</button>
+	</section>
+
+	<!-- Sorting and Filtering Section -->
+	<section class="sorting-filters" style="display:none">
+		<label for="read-status">Read/Unread:</label>
+		<select id="read-status">
+			<option value="all">All</option>
+			<option value="read">Read</option>
+			<option value="unread">Unread</option>
+		</select>
+
+		<label for="follow-status">Followed:</label>
+		<select id="follow-status">
+			<option value="all">All</option>
+			<option value="followed">Followed</option>
+			<option value="not-followed">Not Followed</option>
+		</select>
+
+		<label for="author">Author:</label>
+		<input type="text" id="author" placeholder="Search by author">
+
+		<label for="type">Type:</label>
+		<select id="type">
+			<option value="all">All</option>
+			<option value="question">Question</option>
+			<option value="discussion">Discussion</option>
+		</select>
+
+		<label for="creation-date">Creation Date:</label>
+		<input type="date" id="creation-date">
+	</section>
+
+	<!-- Pagination Section -->
+	<section class="pagination">
+		<button class="first-page">&laquo; First</button>
+		<button class="prev-page">&lt; Prev</button>
+		<div class="page-numbers"></div>
+		<button class="next-page">Next &gt;</button>
+		<button class="last-page">Last &raquo;</button>
+	</section>
+
+	<!-- Forum Articles Section -->
+	<section class="forum-articles">
+		<div class="articles-header">
+			<span class="column-title">Title</span>
+			<span class="column-author">Author</span>
+			<span class="column-date">Creation Date</span>
+			<span class="column-replies">Replies</span>
+			<span class="column-last-message">Last Message</span>
+		</div>
+
+		<div class="article-row">
+			<span class="article-title">How to play?</span>
+			<span class="article-author">User123</span>
+			<span class="article-date">2024-12-01</span>
+			<span class="article-replies">5</span>
+			<span class="article-last-message">2024-12-02</span>
+		</div>
+		<!-- Additional article rows would go here -->
+	</section>
+
+	<!-- Pagination Section -->
+	<section class="pagination">
+		<button class="first-page">&laquo; First</button>
+		<button class="prev-page">&lt; Prev</button>
+		<div class="page-numbers"></div>
+		<button class="next-page">Next &gt;</button>
+		<button class="last-page">Last &raquo;</button>
+	</section>
+
+
+	<script>
+		let pagination1;
+		let pagination2;
+		let current_category = 1;
+		let current_limit = 10;
+
+		document.addEventListener("DOMContentLoaded", function () {
+			pagination1 = document.querySelectorAll('.pagination')[0];
+			pagination2 = document.querySelectorAll('.pagination')[1];
+
+			fetchData();
+		});
+
+		function fetchData(category = null, page=null, limit = null) {
+			let url = new URL("/forum/topics", window.location.origin);
+			if (category !== null) url.searchParams.append("category", category);
+			if (page !== null) url.searchParams.append("page", page);
+			if (limit !== null) url.searchParams.append("limit", limit);
+
+			fetch(url)
+				.then(response => response.json())
+				.then(data => {
+					populateArticles(data.topics);
+					console.log(data.pages);
+					populatePagination(pagination1, data.pages, 1);
+					populatePagination(pagination2, data.pages, 1);
+					current_category = category;
+				})
+				.catch(error => console.error("Error fetching articles:", error));
+		}
+
+		function populateArticles(articles) {
+			const container = document.querySelector(".forum-articles");
+			container.innerHTML = `
+				<div class="articles-header">
+					<span class="column-title">Title</span>
+					<span class="column-author">Author</span>
+					<span class="column-date">Creation Date</span>
+					<span class="column-replies">Replies</span>
+					<span class="column-last-message">Last Message</span>
+				</div>`;
+
+			console.log(articles);
+			articles.forEach(article => {
+				const articleRow = document.createElement("div");
+				articleRow.classList.add("article-row");
+				articleRow.innerHTML = `
+					<span class="article-title">
+						<a href="/forum/topic?topic_id=${article.id}" class="article-link">${article.title}</a>
+					</span>
+					<span class="article-author">${article.author}</span>
+					<span class="article-date">${article.creationDate}</span>
+					<span class="article-replies">${article.replies}</span>
+					<span class="article-last-message">${article.lastMessage}</span>
+				`;
+				container.appendChild(articleRow);
+			});
+		}
+
+		function populatePagination(container, totalPages, currentPage) {
+			console.log(container);
+			const pageNumbersContainer = container.querySelector('.page-numbers');
+			const firstPageButton = container.querySelector('.first-page');
+			const prevPageButton = container.querySelector('.prev-page');
+			const nextPageButton = container.querySelector('.next-page');
+			const lastPageButton = container.querySelector('.last-page');
+
+			// Clear existing page numbers
+			pageNumbersContainer.innerHTML = '';
+
+			// Create page number buttons
+			for (let i = 1; i <= totalPages; i++) {
+				const pageButton = document.createElement('button');
+				pageButton.classList.add('page-number');
+				pageButton.textContent = i;
+				if (i === currentPage) {
+					pageButton.classList.add('active'); // Highlight current page
+				}
+
+				pageButton.addEventListener('click', () => { fetchData(current_category, i, current_limit); });
+
+				pageNumbersContainer.appendChild(pageButton);
+			}
+
+			firstPageButton.onclick = () => fetchData(current_category, 1, current_limit);
+			prevPageButton.onclick = () => fetchData(current_category, Math.max(1, currentPage - 1), current_limit);
+			nextPageButton.onclick = () => fetchData(current_category, Math.min(totalPages, currentPage + 1), current_limit);
+			lastPageButton.onclick = () => fetchData(current_category, totalPages, current_limit);
+
+			// Disable or enable pagination buttons based on current page
+			firstPageButton.classList.toggle("disabled", currentPage === 1);
+			prevPageButton.classList.toggle("disabled", currentPage === 1);
+			nextPageButton.classList.toggle("disabled", currentPage === totalPages);
+			lastPageButton.classList.toggle("disabled", currentPage === totalPages);
+		}
+	</script>
+
+	<div id="footer-placeholder"></div> <!-- Placeholder pour le footer -->
+</body>

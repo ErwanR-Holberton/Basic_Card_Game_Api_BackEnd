@@ -11,6 +11,9 @@ from database.handle_users import *
 from database.handle_cards import *
 from database.handle_decks import *
 from database.handle_effects import *
+from database.handle_likes import *
+from database.handle_messages import *
+from database.handle_topics import *
 
 def create_connection():
     """Create a database connection."""
@@ -21,8 +24,3 @@ def create_connection():
     except Error as e:
         print(f"Error connecting to MariaDB Platform: {e}")
         exit(1)
-
-
-
-if __name__ == "__main__":
-    main()

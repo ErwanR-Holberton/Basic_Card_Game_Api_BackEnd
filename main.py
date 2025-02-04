@@ -1,8 +1,10 @@
+from sys import argv
 from flask import render_template, request, jsonify, make_response, redirect, url_for, session
-from Ngrok_module import Start_Ngrok
-from database.database import create_connection, create_user, verify_user, get_all_cards
+from database.database import create_connection, create_user, verify_user, get_all_cards, get_topics, get_topic_count
 import jwt, os
 from matchmaking import socketio
+if "--local" not in argv:
+    from Ngrok_module import Start_Ngrok
 
 
 from App import app
@@ -86,6 +88,75 @@ def get_cards_routes_for_unity():
 
 #---------------------------------------------
 
+# Route to get topics with pagination
+@app.route('/forum/topics', methods=['GET'])
+def get_topics_route():
+    # Get pagination parameters from query parameters
+    category = request.args.get('category', default=1, type=int)  # Default to category page 1
+    page = request.args.get('page', default=1, type=int)  # Default to page 1
+    limit = request.args.get('limit', default=10, type=int)  # Default to 10 topics per page
+
+    print("recieved:", category, page, limit)
+    # Ensure limit and page are positive integers
+    if page < 1 or limit < 1:
+        return jsonify({"error": "Invalid pagination parameters"}), 400
+
+    # Fetch topics from the database (using the defined function)
+    conn = create_connection()
+    topics = get_topics(conn, category, page, limit)
+    total_topics = get_topic_count(conn, category)
+    pages = (total_topics + limit - 1) // limit
+    print(pages, total_topics, limit)
+    conn.close()
+
+    # Prepare the response
+    response = {
+        'page': page,
+        'pages': pages,
+        'topics': [{'id': topic[0], 'title': topic[1], 'replies': topic[2], 'creationDate': topic[3], 'author': topic[4]} for topic in topics]
+    }
+
+    return jsonify(response)
+
+# Route to get messages with pagination
+@app.route('/forum/messages', methods=['GET'])
+def get_messages_route():
+    # Get pagination parameters from query parameters
+    topic_id = request.args.get('topic_id', default=1, type=int)  # Default to category page 1
+    page = request.args.get('page', default=1, type=int)  # Default to page 1
+    limit = request.args.get('limit', default=10, type=int)  # Default to 10 messages per page
+
+    print("recieved:", topic_id, page, limit)
+    # Ensure limit and page are positive integers
+    if page < 1 or limit < 1:
+        return jsonify({"error": "Invalid pagination parameters"}), 400
+
+    # Fetch messages from the database (using the defined function)
+    conn = create_connection()
+    messages = get_messages(conn, category, page, limit)
+    total_messages = get_topic_count(conn, category)
+    pages = (total_messages + limit - 1) // limit
+    print(pages, total_messages, limit)
+    conn.close()
+
+    # Prepare the response
+    response = {
+        'page': page,
+        'pages': pages,
+        'messages': [{'id': message[0], 'title': message[1], 'replies': message[2], 'creationDate': message[3], 'author': message[4]} for message in messages]
+    }
+
+    return jsonify(response)
+
+@app.route('/forum/topic/<int:topic_id>', methods=['GET'])
+def topic_page(topic_id):
+    print("topic:", topic_id)
+    return render_template("topic.html", topic_id=topic_id)
+
+@app.route('/forum', methods=['GET'])
+def forum_page():
+    return render_template("forum.html")
+
 @app.route('/protected', methods=['GET'])
 def protected():
     token = request.cookies.get('jwt_token')
@@ -103,5 +174,5 @@ def protected():
 
 if __name__ == '__main__':
     print("server running...")
-    socketio.run(app, port=7115)
+    socketio.run(app, port=7115, debug=True)
     #app.run(host='0.0.0.0', port=7115)
