@@ -85,21 +85,21 @@ tbody {
 #deck-card {
     flex: auto;
     background-color: #355E3B;
-    margin: 10px;
-    padding: 10px;
+    margin: 5px;
+    padding: 5px;
     border-radius: 10px;
     color: #EAD8A6;
     text-align: center;
 }
 
-#deck-card img {
+img.card {
     margin: 5px;
     border: 2px solid #C4A000;
     border-radius: 10px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-#deck-card img:hover {
+img:hover {
     transform: scale(1.1);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }

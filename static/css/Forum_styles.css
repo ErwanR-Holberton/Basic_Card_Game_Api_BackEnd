@@ -20,17 +20,6 @@ a:hover {
 }
 
 
-.nav {
-    display: flex;
-    gap: 20px;
-}
-
-.nav a {
-    font-weight: bold;
-    font-size: 24px;
-
-}
-
 .user {
     display: flex;
     align-items: center;
@@ -39,29 +28,6 @@ a:hover {
 
 .user img {
     height: 50px;
-}
-
-
-
-/*nav-link*/
-.nav-link {
-    text-decoration: none;
-    color: #EAD8A6;
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 4px;
-}
-
-.nav-link:hover,
-.nav-link.active {
-    background-color: #C4A000;
-    color: #4E3B31;
-}
-header, footer {
-    background-color: #2C3E50;
-    color: #EAD8A6;
-    padding: 1rem;
-    text-align: center;
 }
 
 
