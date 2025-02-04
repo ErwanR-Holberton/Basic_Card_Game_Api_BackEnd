@@ -11,22 +11,13 @@
 
 
 <body>
-	<div id="header-placeholder"></div>
-
 	<h1 class="page-title">Forum</h1>
 	<h2>Topic ID: {{ topic_id }}</h2>
 
 	<!-- Forum Topics Section -->
 	<section class="forum-topics">
-		<button class="arrow-left">&lt;</button>
 		<div class="topics-container">
-			<button onclick="fetchData(1)">General Discussion</button>
-			<button onclick="fetchData(2)">Game Updates</button>
-			<button onclick="fetchData(3)">Strategies</button>
-			<button onclick="fetchData(4)">Technical Support</button>
-			<button onclick="fetchData(5)">Community Creations</button>
 		</div>
-		<button class="arrow-right">&gt;</button>
 	</section>
 
 	<!-- Sorting and Filtering Section -->
@@ -111,16 +102,18 @@
 			fetchData();
 		});
 
-		function fetchData(category = null, page=null, limit = null) {
-			let url = new URL("/forum/topics", window.location.origin);
-			if (category !== null) url.searchParams.append("category", category);
+		function fetchData(page=null, limit = null) {
+			let url = new URL("/forum/messages", window.location.origin);
+
+			const topicId = encodeURIComponent("{{ topic_id }}");
+			url.searchParams.append("topic_id", topicId);
 			if (page !== null) url.searchParams.append("page", page);
 			if (limit !== null) url.searchParams.append("limit", limit);
 
 			fetch(url)
 				.then(response => response.json())
 				.then(data => {
-					populateArticles(data.topics);
+					populateArticles(data.messages);
 					console.log(data.pages);
 					populatePagination(pagination1, data.pages, 1);
 					populatePagination(pagination2, data.pages, 1);
@@ -145,9 +138,7 @@
 				const articleRow = document.createElement("div");
 				articleRow.classList.add("article-row");
 				articleRow.innerHTML = `
-					<span class="article-title">
-						<a href="/forum/topic?topic_id=${article.id}" class="article-link">${article.title}</a>
-					</span>
+					<span class="article-title">${article.message}</span>
 					<span class="article-author">${article.author}</span>
 					<span class="article-date">${article.creationDate}</span>
 					<span class="article-replies">${article.replies}</span>

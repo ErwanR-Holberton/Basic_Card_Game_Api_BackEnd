@@ -1,0 +1,95 @@
+:root {
+    --navbar_height: 50px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#navbar {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: var(--navbar_height);
+    position: fixed;
+    top: 0;
+    justify-content: space-between;
+    background-color: #355E3b;
+    z-index: 999;
+    /* Dark Wood */
+    color: #C4A000;
+    /* Antique Gold */
+    border: 4px solid #C4A000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    font-family: Cinzel, serif;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1.5em;
+}
+
+#navbar div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    list-style-type: none;
+    height: 100%;
+    margin: 10px;
+}
+
+#navbar #menu * {
+    margin-right: 10px;
+}
+
+.logo img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#nav_margin {
+    margin-bottom: var(--navbar_height);
+    display: flex;
+    border: 4px solid #fff0;
+}
+
+#download {
+    margin-right: 50px;
+}
+
+#accountdropdown {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: var(--navbar_height);
+    right: 0;
+    margin: 0;
+    color: white;
+    background-color: grey;
+    border-radius: 15px;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+#accountdropdown>*:hover {
+    background-color: lightgray;
+}
+
+#accountdropdown>* {
+    border-radius: 10px;
+    padding: 5px;
+    font-size: 1.25rem;
+}
+
+#menu a:hover {
+    color: #C4A000;
+}
+
+#menu a {
+    color: #EAD8A6;
+    font-size: 24px;
+    text-decoration: none;
+    /* Removes underline */
+}

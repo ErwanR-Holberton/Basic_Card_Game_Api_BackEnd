@@ -1,6 +1,6 @@
 from sys import argv
 from flask import render_template, request, jsonify, make_response, redirect, url_for, session
-from database.database import create_connection, create_user, verify_user, get_all_cards, get_topics, get_topic_count
+from database.database import create_connection, create_user, verify_user, get_all_cards, get_topics, get_topic_count, get_messages, get_message_count_by_topic
 import jwt, os
 from matchmaking import socketio
 if "--local" not in argv:
@@ -131,10 +131,9 @@ def get_messages_route():
     if page < 1 or limit < 1:
         return jsonify({"error": "Invalid pagination parameters"}), 400
 
-    # Fetch messages from the database (using the defined function)
     conn = create_connection()
-    messages = get_messages(conn, category, page, limit)
-    total_messages = get_topic_count(conn, category)
+    messages = get_messages(conn, topic_id, page, limit)
+    total_messages = get_message_count_by_topic(conn, topic_id)
     pages = (total_messages + limit - 1) // limit
     print(pages, total_messages, limit)
     conn.close()
@@ -143,8 +142,9 @@ def get_messages_route():
     response = {
         'page': page,
         'pages': pages,
-        'messages': [{'id': message[0], 'title': message[1], 'replies': message[2], 'creationDate': message[3], 'author': message[4]} for message in messages]
+        'messages': [{'id': message[0], 'message': message[1], 'creationDate': message[2], 'author': message[3]} for message in messages]
     }
+    print(response['messages'])
 
     return jsonify(response)
 

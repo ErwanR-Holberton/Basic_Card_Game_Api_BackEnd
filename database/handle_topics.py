@@ -27,12 +27,6 @@ def get_topic_count(cursor, category):
     return cursor.fetchone()[0]
 
 @Read_DB
-def get_message_count_by_topic(cursor, topic_id):
-    SQL_Command = """SELECT post_count FROM topic WHERE id = %s"""
-    cursor.execute(SQL_Command, (topic_id,))
-    return cursor.fetchone()[0]
-
-@Read_DB
 def get_topics(cursor, category_id, page_number=1, limit=10):
     OFFSET = (page_number - 1) * limit
     SQL_Command = """SELECT topic.id, topic.description, topic.post_count, topic.created_at, users.username AS username

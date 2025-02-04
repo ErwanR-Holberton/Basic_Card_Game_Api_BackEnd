@@ -20,12 +20,20 @@ def delete_message(cursor, message_id, user_id, topic_id):
     return cursor.rowcount > 0
 
 @Read_DB
-def get_messages_after(cursor, topic_id, last_created_at=None, limit=10):
-    SQL_Command = """SELECT * FROM message
-    WHERE topic_id = %s
-    AND (%s IS NULL OR created_at < %s)
-    ORDER BY created_at DESC
-    LIMIT %s"""
-    cursor.execute(SQL_Command, (topic_id, last_created_at, last_created_at, limit))
+def get_message_count_by_topic(cursor, topic_id):
+    SQL_Command = """SELECT post_count FROM topic WHERE id = %s"""
+    cursor.execute(SQL_Command, (topic_id,))
+    return cursor.fetchone()[0]
+
+@Read_DB
+def get_messages(cursor, topic_id, page_number=1, limit=10):
+    OFFSET = (page_number - 1) * limit
+    SQL_Command = """SELECT message.id, message.text, message.created_at, users.username AS username
+    FROM message
+    JOIN users ON message.user_id = users.id
+    WHERE message.topic_id = %s
+    ORDER BY message.created_at DESC
+    LIMIT %s OFFSET %s"""
+    cursor.execute(SQL_Command, (topic_id, limit, OFFSET))
     messages = cursor.fetchall()
     return messages
