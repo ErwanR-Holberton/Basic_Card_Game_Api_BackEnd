@@ -115,7 +115,6 @@ def get_topics_route():
         'pages': pages,
         'topics': [{'id': topic[0], 'title': topic[1], 'replies': topic[2], 'creationDate': topic[3], 'author': topic[4]} for topic in topics]
     }
-
     return jsonify(response)
 
 # Route to get messages with pagination
@@ -131,9 +130,10 @@ def get_messages_route():
     if page < 1 or limit < 1:
         return jsonify({"error": "Invalid pagination parameters"}), 400
 
+    # Fetch messages from the database (using the defined function)
     conn = create_connection()
-    messages = get_messages(conn, topic_id, page, limit)
-    total_messages = get_message_count_by_topic(conn, topic_id)
+    messages = get_messages(conn, category, page, limit)
+    total_messages = get_topic_count(conn, category)
     pages = (total_messages + limit - 1) // limit
     print(pages, total_messages, limit)
     conn.close()
@@ -142,10 +142,8 @@ def get_messages_route():
     response = {
         'page': page,
         'pages': pages,
-        'messages': [{'id': message[0], 'message': message[1], 'creationDate': message[2], 'author': message[3]} for message in messages]
+        'messages': [{'id': message[0], 'title': message[1], 'replies': message[2], 'creationDate': message[3], 'author': message[4]} for message in messages]
     }
-    print(response['messages'])
-
     return jsonify(response)
 
 @app.route('/forum/topic/<int:topic_id>', methods=['GET'])
@@ -156,6 +154,29 @@ def topic_page(topic_id):
 @app.route('/forum', methods=['GET'])
 def forum_page():
     return render_template("forum.html")
+
+@app.route("/profil/<int:user_id>", methods=['GET'])
+def profil_page(user_id):
+    token = request.cookies.get('jwt_token')
+    if not token:
+        return add_cookie_to_render('index.html', user=None)  # Redirect to index if no token
+    try:
+        # Décodage du token JWT
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        # Connexion and get decks and id_user
+        conn = create_connection()
+        logged_in_user_id = get_user_id_by_username(conn, data.get("user"))  # ID user
+        user_decks = get_deck_by_user_id(conn, user_id=user_id)
+        selected_deck = get_user_selected_deck_by_id(conn, user_id=user_id)
+        conn.close()
+        # User verification
+        if logged_in_user_id != user_id:
+            return add_cookie_to_render('index.html', user=data)
+        return render_template("profil.html", user=data, all_decks=user_decks, selected_deck=selected_deck)
+    except jwt.ExpiredSignatureError:
+        return add_cookie_to_render('index.html', user=None)
+    except jwt.InvalidTokenError:
+        return add_cookie_to_render('index.html', user=None)
 
 @app.route('/protected', methods=['GET'])
 def protected():
