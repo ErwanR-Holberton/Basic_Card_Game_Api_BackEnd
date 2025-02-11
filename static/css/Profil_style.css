@@ -1,0 +1,116 @@
+body {
+	background-color: #4E3B31;
+}
+
+.separator {
+	width: 100%;
+	height: 2px;
+	background-color: antiquewhite;
+	border: none;
+	margin: 10px 0;
+}
+
+h2 {
+	text-align: center;
+	font-size: xx-large;
+	color: antiquewhite;
+}
+
+.main-container {
+	justify-content: center;
+}
+
+.main-container,
+.field-row,
+.profil-container,
+.side-container,
+.user-field {
+	display: flex;
+}
+
+.profil-container,
+.side-container {
+	flex-direction: column;
+	flex: auto;
+	background-color: #355E3b;
+	margin: 20PX 10px;
+	padding: 10PX;
+	border: 4px solid #C4A000;
+	max-width: 25rem;
+}
+
+.submit_button {
+	display: flex;
+	justify-content: end;
+	margin: 10px;
+}
+
+button {
+	background-color: #C4A000;
+	border-radius: 100px;
+	box-shadow: rgba(44, 187, 99, .2) 0 -25px 18px -14px inset, rgba(44, 187, 99, .15) 0 1px 2px, rgba(44, 187, 99, .15) 0 2px 4px, rgba(44, 187, 99, .15) 0 4px 8px, rgba(44, 187, 99, .15) 0 8px 16px, rgba(44, 187, 99, .15) 0 16px 32px;
+	color: black;
+	cursor: pointer;
+	display: inline-block;
+	font-family: CerebriSans-Regular, -apple-system, system-ui, Roboto, sans-serif;
+	padding: 7px 20px;
+	text-align: center;
+	text-decoration: none;
+	transition: all 250ms;
+	border: 0;
+	font-size: 16px;
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: manipulation;
+}
+
+button:hover {
+	box-shadow: rgba(44, 187, 99, .35) 0 -25px 18px -14px inset, rgba(44, 187, 99, .25) 0 1px 2px, rgba(44, 187, 99, .25) 0 2px 4px, rgba(44, 187, 99, .25) 0 4px 8px, rgba(44, 187, 99, .25) 0 8px 16px, rgba(44, 187, 99, .25) 0 16px 32px;
+	transform: scale(1.05) rotate(-1deg);
+}
+
+.field-name {
+	color: antiquewhite;
+}
+
+.user-field {
+	flex-direction: column;
+}
+
+.user-field,
+.field-row,
+.field-name {
+	margin: 5px;
+	flex: auto;
+	font-size: 1.5rem;
+}
+
+.field-row,
+.side-container {
+	align-items: center;
+}
+
+.blason,
+.leaderboard {
+	background-color: grey;
+	margin: 1rem;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 15rem;
+}
+
+.user-blason {
+	height: 150px;
+}
+
+
+@media (max-width: 630px) {
+	.main-container {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+}

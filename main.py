@@ -1,7 +1,7 @@
 from sys import argv
 from flask import render_template, request, jsonify, make_response, redirect, url_for, session
-from database.database import create_connection, create_user, verify_user, get_all_cards, get_topics, get_topic_count, get_messages, get_message_count_by_topic
-import jwt, os
+from database.database import *
+import jwt, os, re
 from matchmaking import socketio
 if "--local" not in argv:
     from Ngrok_module import Start_Ngrok
@@ -13,12 +13,17 @@ socketio.init_app(app)
 
 def add_cookie_to_render(file, *args, **kwargs):  #you should pass html file name and render arguments
     response = make_response(render_template(file, *args, **kwargs)) # need to add a default page
-    response.set_cookie('prev_page', file, httponly=True)
+    response.set_cookie('prev_page', file, httponly=True, secure=True, samesite='Strict')
     return response
 
 @app.route('/')
 def index():
-    return add_cookie_to_render('index.html')
+    token = request.cookies.get('jwt_token')
+    if token:
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        return add_cookie_to_render('index.html', user=data.get('user'), user_id=data.get('user_id'))
+
+    return add_cookie_to_render('index.html', user=None)
 
 @app.route('/status')
 def status():
@@ -31,11 +36,12 @@ def login():
     password = request.form['password']
     conn = create_connection()
     result = verify_user(conn, username, password)
+    user_id = get_user_id_by_username(conn, username)
     conn.close()
     if result:
-        token = generate_token(username)
-        response = add_cookie_to_render(previous_page, user=username)
-        response.set_cookie('jwt_token', token.decode('utf-8'), httponly=True)  # Set the token in an HTTP-only cookie
+        token = generate_token(username, user_id)
+        response = add_cookie_to_render(previous_page, user=username, user_id=user_id)
+        response.set_cookie('jwt_token', token.decode('utf-8'), httponly=True, secure=True)  # Set the token in an HTTP-only cookie
         return response
     else:
         return  add_cookie_to_render(previous_page, login_error="Invalid username or password")
@@ -46,16 +52,75 @@ def signup():
     username = request.form['username']
     password = request.form['password']
     email = request.form['email']
+
+    # Vérification des entrées avec regex
+    if not is_valid_username(username):
+        return add_cookie_to_render(previous_page, signup_error="Invalid username format")
+    if not is_valid_email(email):
+        return add_cookie_to_render(previous_page, signup_error="Invalid email format")
+    if not is_valid_password(password):
+        return add_cookie_to_render(previous_page, signup_error="Weak password: 8+ chars, 1 uppercase, 1 number, 1 special char")
+
     conn = create_connection()
     result = create_user(conn, username, email, password)
+    user_id = get_user_id_by_username(conn, username)
     conn.close()
+
     if result:
-        token = generate_token(username)
-        response = add_cookie_to_render(previous_page, user=username)
-        response.set_cookie('jwt_token', token.decode('utf-8'), httponly=True)  # Set the token in an HTTP-only cookie
+        token = generate_token(username, user_id)
+        response = add_cookie_to_render(previous_page, user=username, user_id=user_id)
+        response.set_cookie('jwt_token', token, httponly=True, secure=True)
         return response
     else:
-        return  add_cookie_to_render(previous_page, signup_error="Invalid username")
+        return add_cookie_to_render(previous_page, signup_error="Username already taken")
+
+@app.route('/update_user', methods=['POST'])
+def update_user_route():
+    token = request.cookies.get('jwt_token')
+    if not token:
+        return add_cookie_to_render('index.html', user=None)
+
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        previous_page = request.cookies.get('prev_page')
+        username = request.form.get('username')
+        oldpassword = request.form.get('oldpassword', "").strip()
+        newpassword = request.form.get('newpassword', "").strip()
+        confirmpassword = request.form.get('confirmpassword', "").strip()
+        selecteddeck = request.form.get('selecteddeck', None)
+        email = request.form.get('email')
+
+        # Validation des inputs
+        if username and not is_valid_username(username):
+            return "Invalid username format", 400
+        if email and not is_valid_email(email):
+            return "Invalid email format", 400
+        if newpassword and not is_valid_password(newpassword):
+            return "Weak password: 8+ chars, 1 uppercase, 1 number, 1 special char", 400
+        if selecteddeck and not is_safe_input(selecteddeck):
+            return "Invalid deck name", 400
+
+        # Vérification des mots de passe si remplis
+        if newpassword and oldpassword and newpassword != confirmpassword:
+            return "New passwords do not match", 400
+
+        conn = create_connection()
+        response = update_user(conn, username, email, oldpassword, newpassword, selecteddeck, data.get('user_id'))
+        conn.close()
+
+        if response:
+            return add_cookie_to_render(previous_page, username=username, user_id=data.get('user_id'), usermail=email, selected_deck=selecteddeck)
+        else:
+            return "Update failed", 500
+
+    except jwt.ExpiredSignatureError:
+        return add_cookie_to_render('index.html', user=None)
+    except jwt.InvalidTokenError:
+        return add_cookie_to_render('index.html', user=None)
+    except Exception as e:
+        print(f"Erreur lors de la mise à jour : {e}")
+        return "Internal server error", 500
+
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -75,7 +140,7 @@ def deck_builder():
         return add_cookie_to_render('deck_builder.html', user=None, cards=cards)
     try:
         data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-        return render_template('deck_builder.html', user=data, cards=cards)
+        return render_template('deck_builder.html', user=data.get('user'), cards=cards, user_id=data.get('user_id'))
     except jwt.ExpiredSignatureError:
         return jsonify({'message': 'Token has expired!'}), 403 #need to redirect to ligin or do something that makes better sense
 
@@ -153,7 +218,17 @@ def topic_page(topic_id):
 
 @app.route('/forum', methods=['GET'])
 def forum_page():
-    return render_template("forum.html")
+    token = request.cookies.get('jwt_token')
+    if token:
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            return render_template("forum.html", user=data.get('user'), user_id=data.get('user_id'))
+        except jwt.ExpiredSignatureError:
+            return add_cookie_to_render('index.html', user=None)
+        except jwt.InvalidTokenError:
+            return add_cookie_to_render('index.html', user=None)
+    else:
+        return render_template("forum.html", user=None)
 
 @app.route("/profil/<int:user_id>", methods=['GET'])
 def profil_page(user_id):
@@ -167,20 +242,33 @@ def profil_page(user_id):
         conn = create_connection()
         logged_in_user_id = get_user_id_by_username(conn, data.get("user"))  # ID user
         user_decks = get_deck_by_user_id(conn, user_id=user_id)
+        usermail = get_user(conn, data.get('user'))[2]
         selected_deck = get_user_selected_deck_by_id(conn, user_id=user_id)
         conn.close()
         # User verification
         if logged_in_user_id != user_id:
             return add_cookie_to_render('index.html', user=data)
-        return render_template("profil.html", user=data, all_decks=user_decks, selected_deck=selected_deck)
+        return render_template("profil.html", user=data.get('user'), user_id=data.get('user_id'), all_decks=user_decks, selected_deck=selected_deck, username=data.get("user"), usermail=usermail)
     except jwt.ExpiredSignatureError:
         return add_cookie_to_render('index.html', user=None)
     except jwt.InvalidTokenError:
         return add_cookie_to_render('index.html', user=None)
 
+@app.route('/rules', methods=['GET'])
+def rules():
+    token = request.cookies.get('jwt_token')
+    if not token:
+        return add_cookie_to_render('rules.html', user=None)
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        return render_template('rules.html', user=data.get('user'), user_id=data.get('user_id'))
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Token has expired!'}), 403 #need to redirect to ligin or do something that makes better sense
+
+
 @app.route('/protected', methods=['GET'])
 def protected():
-    token = request.cookies.get('jwt_token')
+    token = request.cookie.get('jwt_token')
     user_data = None
     personnalised_content = None
     if not token:
@@ -190,6 +278,19 @@ def protected():
         return render_template('protected.html', user=data)
     except jwt.ExpiredSignatureError:
         return jsonify({'message': 'Token has expired!'}), 403 #need to redirect to ligin or do something that makes better sense
+
+
+def is_valid_username(username):
+    return bool(re.match(r'^[a-zA-Z0-9_]{3,20}$', username))
+
+def is_valid_email(email):
+    return bool(re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email))
+
+def is_valid_password(password):
+    return bool(re.match(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', password))
+
+def is_safe_input(user_input):
+    return not bool(re.search(r'[<>]', user_input))  # Empêche les balises HTML/JS
 
 #---------------------------------------------
 

@@ -1,0 +1,88 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #4E3B31;
+}
+
+.game-board {
+    position: relative;
+    display: inline-block;
+	margin: 10px;
+}
+
+.board-image {
+    width: 80%; /* S’adapte à l’écran */
+    max-width: 1000px;
+}
+
+.zone {
+    position: absolute;
+    cursor: pointer;
+    border-radius: 12%;
+}
+
+#zone-action {
+    border: 2px solid blue;
+    background-color: rgba(0, 0, 255, 0.4);
+}
+
+#zone-cimetiere {
+    border: 2px solid black;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+#zone-deck {
+    border: 2px solid yellow;
+    background-color: rgba(255, 255, 0, 0.4);
+}
+
+#zone-equipement {
+    border: 2px solid green;
+    background-color: rgba(0, 128, 0, 0.4);
+}
+
+#zone-piege {
+    border: 2px solid red;
+    background-color: rgba(255, 0, 0, 0.4);
+}
+
+#zone-main {
+    border: 2px solid grey;
+    background-color: rgba(128, 128, 128, 0.4);
+}
+
+#zone-deck, #zone-cimetiere,#zone-action {
+    height: 14%;
+    width: 9%;
+}
+
+#zone-main {
+    height: 12%;
+    width: 60%;
+}
+
+#zone-piege, #zone-equipement {
+    height: 14%;
+    width: 32%;
+}
+
+/* Fenêtre d'info */
+#info-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    display: none; /* Caché par défaut */
+}
+
+#info-box button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #C4A000;
+    border: none;
+    cursor: pointer;
+}

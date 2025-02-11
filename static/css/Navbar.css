@@ -18,9 +18,6 @@ body {
     justify-content: space-between;
     background-color: #355E3b;
     z-index: 999;
-    /* Dark Wood */
-    color: #C4A000;
-    /* Antique Gold */
     border: 4px solid #C4A000;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     font-family: Cinzel, serif;
@@ -58,38 +55,81 @@ body {
 #download {
     margin-right: 50px;
 }
-
+/* Dropdown menu */
 #accountdropdown {
     display: none;
     flex-direction: column;
     position: absolute;
     top: var(--navbar_height);
-    right: 0;
     margin: 0;
     color: white;
     background-color: grey;
     border-radius: 15px;
     padding: 10px;
     margin-top: 5px;
+    list-style: none;
 }
 
-#accountdropdown>*:hover {
+/* Hover uniquement sur les items du dropdown */
+#accountdropdown li:hover {
     background-color: lightgray;
 }
 
-#accountdropdown>* {
+/* Espacement des éléments */
+#accountdropdown li {
     border-radius: 10px;
     padding: 5px;
     font-size: 1.25rem;
+}
+
+/* Menu principal */
+#menu a, #download, #account {
+    color: #EAD8A6;
+    font-size: 24px;
+    text-decoration: none;
 }
 
 #menu a:hover {
     color: #C4A000;
 }
 
-#menu a {
-    color: #EAD8A6;
-    font-size: 24px;
+/* Boutons */
+.button, #logout_button {
+    background-color: #C4A000;
+    border-radius: 100px;
+    box-shadow: rgba(44, 187, 99, .2) 0 -25px 18px -14px inset,
+                rgba(44, 187, 99, .15) 0 1px 2px,
+                rgba(44, 187, 99, .15) 0 2px 4px,
+                rgba(44, 187, 99, .15) 0 4px 8px,
+                rgba(44, 187, 99, .15) 0 8px 16px,
+                rgba(44, 187, 99, .15) 0 16px 32px;
+    color: black;
+    cursor: pointer;
+    display: block;
+    font-family: CerebriSans-Regular, -apple-system, system-ui, Roboto, sans-serif;
+    padding: 10px 25px;
+    text-align: center;
     text-decoration: none;
-    /* Removes underline */
+    transition: all 250ms ease-in-out;
+    border: none;
+    font-size: 16px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+/* Effet hover */
+.button:hover, #logout_button:hover {
+    box-shadow: rgba(44, 187, 99, .35) 0 -25px 18px -14px inset,
+                rgba(44, 187, 99, .25) 0 1px 2px,
+                rgba(44, 187, 99, .25) 0 2px 4px,
+                rgba(44, 187, 99, .25) 0 4px 8px,
+                rgba(44, 187, 99, .25) 0 8px 16px,
+                rgba(44, 187, 99, .25) 0 16px 32px;
+    transform: scale(1.05) rotate(-1deg);
+}
+
+/* Centrage des boutons */
+.button_container {
+    text-align: center;
 }
