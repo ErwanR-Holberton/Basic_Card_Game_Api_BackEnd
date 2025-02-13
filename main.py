@@ -129,6 +129,8 @@ def logout():
     response.set_cookie('jwt_token', '', expires=0)  # Remove the JWT cookie by setting its expiration to the past
     return response
 
+#---------------------------------------------
+
 @app.route('/deck_builder', methods=['GET'])
 def deck_builder():
     token = request.cookies.get('jwt_token')
@@ -151,7 +153,6 @@ def get_cards_routes_for_unity():
     conn.close()
     return [(card[0], card[1], card[2], card[3], card[5]) for card in cards]
 
-#---------------------------------------------
 
 # Route to get topics with pagination
 @app.route('/forum/topics', methods=['GET'])

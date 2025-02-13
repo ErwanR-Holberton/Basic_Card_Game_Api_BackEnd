@@ -13,7 +13,7 @@
     <div>
         <div id="download">Download</div>
         <div>
-            <div id="account" onclick="toggleDropdown(event)">
+            <div id="account">
                 {{ user if user else "Account" }}
                 <img src="{{ url_for('static', filename='images/user.svg') }}">
             </div>
@@ -44,8 +44,9 @@
 {% include 'login.html' %}
 <link rel="stylesheet" href="/static/css/Navbar.css">
 
-<script src="https://accounts.google.com/gsi/client" async defer>//google</script>
-<script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js">//jwt decode</script>
+<script nonce="{{ nonce }}" src="https://accounts.google.com/gsi/client" async defer>//google</script>
+<script nonce="{{ nonce }}" src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js">//jwt decode</script>
+<script nonce="{{ nonce }}" src="../static/scripts/Navbar_scripts.js"></script>
 
 <!--
             <div id="g_id_onload"
@@ -55,31 +56,3 @@
                 data-itp_support="true">
             </div>
 -->
-<script>
-    const dropdown = document.querySelector('#accountdropdown');
-    const account = document.querySelector('#account');
-
-    function toggleDropdown(event) {
-        event.stopPropagation(); //somehow adding event to the function and
-        //stopping propagation allows children image to trigger the onclick() function
-        if (dropdown.style.display != 'flex')
-            dropdown.style.display = 'flex';
-        else
-            dropdown.style.display = 'none';
-    }
-    // Close overlay when clicking outside of it
-    window.addEventListener('click', (event) => {
-        if (event.target != account)
-            dropdown.style.display = 'none';
-    });
-</script>
-<script>
-    // Function to log a message
-    function handleCredentialResponse(response) {
-        const userToken = jwt_decode(response.credential);
-        console.log('User Information:');
-        console.log(`Name: ${userToken.name}`);
-        console.log(`Email: ${userToken.email}`);
-        console.log(`Profile Picture: ${userToken.picture}`);
-    }
-</script>

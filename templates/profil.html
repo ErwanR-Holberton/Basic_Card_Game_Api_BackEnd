@@ -18,6 +18,7 @@
 			<h2>Profil</h2>
 			<hr class="separator">
 			<form action="/update_user" method="POST">
+				{{ form.hidden_tag() }}
 				<div class="user-field">
 					<div class="field-row" id="username">
 						<div class="field-name">Username :</div>
