@@ -30,7 +30,6 @@
 </style>
 <div class="overlay" id="login">
 	<form method="POST" action="/login" id="loginForm">
-		{{ form.hidden_tag() }}
 		<button type="button" id="closeLogin">✖</button>
 
 		{% if login_error %}
@@ -50,7 +49,6 @@
 
 <div class="overlay" id="signup">
 	<form method="POST" action="/signup">
-		{{ form.hidden_tag() }}
 		<button type="button" id="closeSignup">✖</button>
 
 		<label for="username">Username:</label>
