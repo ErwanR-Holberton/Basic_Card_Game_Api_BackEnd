@@ -34,6 +34,7 @@
                 {% endif %}
                 <li>
                     <form action="/logout" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <button id="logout_button" type="submit">Logout</button>
                     </form>
                 </li>

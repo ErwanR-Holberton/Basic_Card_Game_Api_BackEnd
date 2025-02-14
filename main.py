@@ -1,6 +1,7 @@
 from sys import argv
 from flask import render_template, request, jsonify, make_response, redirect, url_for, session
 from database.database import *
+from App import csrf
 import jwt, os, re
 from matchmaking import socketio
 if "--local" not in argv:

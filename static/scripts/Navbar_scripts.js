@@ -15,6 +15,7 @@ window.addEventListener('click', (event) => {
   if (event.target != account)
     dropdown.style.display = 'none';
 });
+
 // Function to log a message
 function handleCredentialResponse(response) {
   const userToken = jwt_decode(response.credential);

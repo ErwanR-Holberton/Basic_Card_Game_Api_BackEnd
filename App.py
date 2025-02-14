@@ -11,7 +11,7 @@ except:
     exit(1)
 
 app = Flask(__name__, static_url_path='/static')
-CSRFProtect(app)
+csrf = CSRFProtect(app)
 CORS(
     app,
     methods=["GET", "POST"],  # Autoriser seulement ces méthodes

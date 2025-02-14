@@ -30,6 +30,7 @@
 </style>
 <div class="overlay" id="login">
 	<form method="POST" action="/login" id="loginForm">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 		<button type="button" id="closeLogin">✖</button>
 
 		{% if login_error %}
@@ -49,6 +50,7 @@
 
 <div class="overlay" id="signup">
 	<form method="POST" action="/signup">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 		<button type="button" id="closeSignup">✖</button>
 
 		<label for="username">Username:</label>
