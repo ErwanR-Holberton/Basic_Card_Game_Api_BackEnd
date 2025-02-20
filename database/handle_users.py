@@ -11,21 +11,31 @@ def create_user(cursor, username, email, password):
     return True
 
 @Commit_DB
-def update_user(cursor, username, email, password, newpassword, selecteddeck, user_id):
-    if not verify_user(username, password):
-        return False  # Si l'authentification échoue, on arrête ici
-    # Vérifie que le nouveau mot de passe n'est pas vide
-    if not newpassword:
-        return False
+def update_user(cursor, username, email, newpassword, selected_deck, user_id):
     try:
-        salt = bcrypt.gensalt()
-        hashed_newpassword = bcrypt.hashpw(newpassword.encode('utf-8'), salt)
-        salt_str = salt.decode('utf-8')
-        SQL_Command = """UPDATE users SET username = %s, password = %s, salt = %s, email = %s, selected_deck = %s WHERE id = %s"""
-        cursor.execute(SQL_Command, (username, hashed_newpassword, salt_str, email, selecteddeck, user_id))
+        if newpassword:
+            # Si un nouveau mot de passe est fourni, on le met à jour
+            salt = bcrypt.gensalt()
+            hashed_newpassword = bcrypt.hashpw(newpassword.encode('utf-8'), salt)
+            SQL_Command = """UPDATE users SET username = %s, password = %s, salt = %s, email = %s, selected_deck = %s WHERE id = %s"""
+            cursor.execute(SQL_Command, (username, hashed_newpassword, salt, email, selected_deck, user_id))
+        else:
+            # Si aucun nouveau mot de passe n'est fourni, on met à jour seulement les autres champs
+            SQL_Command = """UPDATE users SET username = %s, email = %s, selected_deck = %s WHERE id = %s"""
+            cursor.execute(SQL_Command, (username, email, selected_deck, user_id))
         return True
     except Exception as e:
         print(f"Erreur lors de la mise à jour de l'utilisateur : {e}")
+        return False
+
+@Commit_DB
+def delete_user_db(cursor, user_id):
+    try:
+        SQL_Command = """DELETE FROM users WHERE id = %s"""
+        cursor.execute(SQL_Command, (user_id,))
+        return True
+    except Exception as e:
+        print(f'Erreur lors de la suppression du compte utilisateur : {e}')
         return False
 
 @Read_DB

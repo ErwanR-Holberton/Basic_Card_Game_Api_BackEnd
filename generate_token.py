@@ -6,7 +6,7 @@ def generate_token(username, user_id): #generate Jason Web Token
     return jwt.encode({
         'user': username,
         'user_id': user_id,
-        'exp': datetime.utcnow() + timedelta(days=1)
+        'exp': datetime.utcnow() + timedelta(hours=6)
         }, app.config['SECRET_KEY'], algorithm='HS256')
 
 def verify_token(token):

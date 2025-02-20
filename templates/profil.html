@@ -18,10 +18,11 @@
 			<h2>Profil</h2>
 			<hr class="separator">
 			<form action="/update_user" method="POST">
+				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 				<div class="user-field">
 					<div class="field-row" id="username">
 						<div class="field-name">Username :</div>
-						<input type="text" class="inputfield" name="username" id="usernameinput" value="{{ username }}" pattern="[a-zA-Z0-9]+">
+						<input type="text" class="inputfield" name="username" id="usernameinput" value="{{ user }}" pattern="[a-zA-Z0-9]+">
 					</div>
 					<div class="field-row" id="email">
 						<div class="field-name">Email :</div>
@@ -29,27 +30,28 @@
 					</div>
 					<div class="field-row" id="oldpassword">
 						<div class="field-name">Old Password :</div>
-						<input type="password" class="inputfield" name="oldpassword" id="oldpassword" pattern="[a-zA-Z0-9]+">
+						<input type="password" class="inputfield" name="oldpassword" id="oldpassword" pattern="[a-zA-Z0-9!@#$%^&*()_+=-]+">
 					</div>
 					<div class="field-row" id="newpassword">
 						<div class="field-name">New Password :</div>
-						<input type="password" class="inputfield" name="newpassword" id="newpassword" pattern="[a-zA-Z0-9]+">
+						<input type="password" class="inputfield" name="newpassword" id="newpassword" pattern="[a-zA-Z0-9!@#$%^&*()_+=-]+">
 					</div>
 					<div class="field-row" id="confirmpassword">
 						<div class="field-name">Confirm Password :</div>
-						<input type="password" class="inputfield" name="confirmpassword" id="confirmpassword" pattern="[a-zA-Z0-9]+">
+						<input type="password" class="inputfield" name="confirmpassword" id="confirmpassword" pattern="[a-zA-Z0-9!@#$%^&*()_+=-]+">
 					</div>
 					<div class="field-row" id="favoritedeck">
 						<div class="field-name">Favorite Deck :</div>
-						<select name="selecteddeck" id="favoritedeckselect">
+						<select name="selected_deck" id="favoritedeckselect">
 							<option value="">Select your deck</option>
 							{% for deck in all_decks %}
-							<option value="{{ deck }}" {% if selected_deck==deck %}selected{% endif %}>{{ deck }}</option>
+							<option value="{{ deck }}" {% if selected_deck==deck|int %} selected {% endif %}>{{ deck }}</option>
 							{% endfor %}
 						</select>
 					</div>
 					<div class="submit_button">
-						<button type="submit">Update</button>
+						<button type="submit" class="update_button">Update</button>
+						<button type="submit" class="delete_button" formaction="/delete_user">Delete</button>
 					</div>
 				</div>
 			</form>

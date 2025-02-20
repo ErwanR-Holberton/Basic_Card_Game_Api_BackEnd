@@ -52,6 +52,7 @@ def signup():
     previous_page = request.cookies.get('prev_page')
     username = request.form['username']
     password = request.form['password']
+    confirm_password = request.form['confirm_password']
     email = request.form['email']
 
     # Vérification des entrées avec regex
@@ -61,6 +62,16 @@ def signup():
         return add_cookie_to_render(previous_page, signup_error="Invalid email format")
     if not is_valid_password(password):
         return add_cookie_to_render(previous_page, signup_error="Weak password: 8+ chars, 1 uppercase, 1 number, 1 special char")
+
+    if password != confirm_password:
+        return add_cookie_to_render(previous_page, signup_error="Passwords do not match")
+
+    if isinstance(username, bytes):
+        username = username.decode('utf-8')
+    if isinstance(email, bytes):
+        email = email.decode('utf-8')
+    if isinstance(password, bytes):
+        password = password.decode('utf-8')
 
     conn = create_connection()
     result = create_user(conn, username, email, password)
@@ -88,7 +99,7 @@ def update_user_route():
         oldpassword = request.form.get('oldpassword', "").strip()
         newpassword = request.form.get('newpassword', "").strip()
         confirmpassword = request.form.get('confirmpassword', "").strip()
-        selecteddeck = request.form.get('selecteddeck', None)
+        selected_deck = request.form.get('selected_deck', None)
         email = request.form.get('email')
 
         # Validation des inputs
@@ -96,21 +107,38 @@ def update_user_route():
             return "Invalid username format", 400
         if email and not is_valid_email(email):
             return "Invalid email format", 400
-        if newpassword and not is_valid_password(newpassword):
-            return "Weak password: 8+ chars, 1 uppercase, 1 number, 1 special char", 400
-        if selecteddeck and not is_safe_input(selecteddeck):
-            return "Invalid deck name", 400
 
         # Vérification des mots de passe si remplis
-        if newpassword and oldpassword and newpassword != confirmpassword:
-            return "New passwords do not match", 400
+        if any([newpassword, oldpassword, confirmpassword]):  # Si au moins un champ est rempli
+            if not all([newpassword, oldpassword, confirmpassword]):  # Si un champ est manquant
+                return "All password fields must be filled", 400
+            if newpassword != confirmpassword:
+                return "New passwords do not match", 400
+            if not is_valid_password(newpassword):
+                return "Weak password: 8+ chars, 1 uppercase, 1 number, 1 special char", 400
+
+        # Préparation des données à envoyer à la fonction update_user
+        # Si pas de changement de mot de passe, on ne passe pas oldpassword et newpassword
+        user_data = {
+            'username': username if username else None,
+            'email': email if email else None,
+            'selected_deck': selected_deck if selected_deck else None,
+            'user_id': data.get('user_id'),
+            'newpassword': newpassword if newpassword else None
+        }
 
         conn = create_connection()
-        response = update_user(conn, username, email, oldpassword, newpassword, selecteddeck, data.get('user_id'))
+        response = update_user(conn, **user_data)  # Envoie les données sans mot de passe si non changé
         conn.close()
 
         if response:
-            return add_cookie_to_render(previous_page, username=username, user_id=data.get('user_id'), usermail=email, selected_deck=selecteddeck)
+            # Générer un nouveau token JWT (si nécessaire) et le renvoyer en cookie
+            token = generate_token(username, data.get('user_id'))
+            response = add_cookie_to_render(previous_page, username=username, user_id=data.get('user_id'), usermail=email, selected_deck=selected_deck)
+            response.set_cookie('jwt_token', token.decode('utf-8'), httponly=True, secure=True)  # Set the token in an HTTP-only cookie
+            if 'profil' in previous_page:
+                return redirect(f'/profil/{data.get("user_id")}')
+            return response
         else:
             return "Update failed", 500
 
@@ -120,6 +148,26 @@ def update_user_route():
         return add_cookie_to_render('index.html', user=None)
     except Exception as e:
         print(f"Erreur lors de la mise à jour : {e}")
+        return "Internal server error", 500
+
+
+@app.route('/delete_user', methods=['POST'])
+def delete_user():
+    token = request.cookies.get('jwt_token')
+    if not token:
+        return add_cookie_to_render('index.html', user=None)
+
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        conn = create_connection()
+        response = delete_user_db(conn, data.get('user_id'))
+        conn.close()
+
+        if response:
+            return add_cookie_to_render('index.html', user=None)
+
+    except Exception as e:
+        print(f'Erreur lors de la suppression du compte: {e}')
         return "Internal server error", 500
 
 
@@ -250,7 +298,7 @@ def profil_page(user_id):
         # User verification
         if logged_in_user_id != user_id:
             return add_cookie_to_render('index.html', user=data)
-        return render_template("profil.html", user=data.get('user'), user_id=data.get('user_id'), all_decks=user_decks, selected_deck=selected_deck, username=data.get("user"), usermail=usermail)
+        return add_cookie_to_render("profil.html", user=data.get('user'), user_id=data.get('user_id'), all_decks=user_decks, selected_deck=selected_deck, usermail=usermail)
     except jwt.ExpiredSignatureError:
         return add_cookie_to_render('index.html', user=None)
     except jwt.InvalidTokenError:
