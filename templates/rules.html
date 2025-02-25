@@ -14,40 +14,20 @@
 		<img src="static/images/plateau.png" alt="Plateau de jeu" class="board-image">
 
 		<!-- Zones interactives -->
-		<div class="zone" id="zone-deck" style="top: 50%; right: 22.5%;" onclick="showInfo('deck')"></div>
-		<div class="zone" id="zone-cimetiere" style="top: 67%; right: 22.5%;" onclick="showInfo('cimetiere')"></div>
-		<div class="zone" id="zone-main" style="top: 22%; left: 18%;" onclick="showInfo('main')"></div>
-		<div class="zone" id="zone-equipement" style="top: 47%; left: 33%;" onclick="showInfo('equipement')"></div>
-		<div class="zone" id="zone-piege" style="top: 70%; left: 33%;" onclick="showInfo('piege')"></div>
-		<div class="zone" id="zone-action" style="top: 59%; left: 21%;" onclick="showInfo('action')"></div>
+		<div class="zone" id="zone-deck" style="top: 50%; right: 22.5%;"></div>
+		<div class="zone" id="zone-cimetiere" style="top: 67%; right: 22.5%;"></div>
+		<div class="zone" id="zone-main" style="top: 22%; left: 18%;"></div>
+		<div class="zone" id="zone-equipement" style="top: 47%; left: 33%;"></div>
+		<div class="zone" id="zone-piege" style="top: 70%; left: 33%;"></div>
+		<div class="zone" id="zone-action" style="top: 59%; left: 21%;"></div>
 
 		<!-- Fenêtre d'information -->
 		<div id="info-box">
 			<p id="info-text"></p>
-			<button onclick="hideInfo()">Fermer</button>
+			<button id="close-info">Fermer</button>
 		</div>
 	</div>
-	<script nonce="{{ nonce }}">
-
-		function showInfo(zone) {
-			const descriptions = {
-				"deck": "C'est ici que vous piochez vos cartes au début de chaque tour.",
-				"cimetiere": "Zone où vont les cartes détruites ou utilisées.",
-				"main": "Cartes que vous avez en main, prêtes à être jouées.",
-				"equipement": "Placez ici vos cartes équipement et amélioration.",
-				"piege": "Ici placez vos pièges face verso, pour surprendre votre opposant.",
-				"action": "Lieu où vous placez et effectuez vos actions d'attaque ou de défense.",
-			};
-
-			document.getElementById("info-text").innerText = descriptions[zone];
-			document.getElementById("info-box").style.display = "block";
-		}
-
-		function hideInfo() {
-			document.getElementById("info-box").style.display = "none";
-		}
-
-	</script>
+	<script src="/static/scripts/Rules.js" nonce="{{ nonce }}"></script>
 
 </body>
 

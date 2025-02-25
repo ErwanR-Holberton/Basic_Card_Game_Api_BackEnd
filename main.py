@@ -1,5 +1,6 @@
 from sys import argv
 from flask import render_template, request, jsonify, make_response, redirect, url_for, session
+from generate_token import generate_token, verify_token
 from database.database import *
 from App import csrf
 import jwt, os, re
@@ -21,7 +22,7 @@ def add_cookie_to_render(file, *args, **kwargs):  #you should pass html file nam
 def index():
     token = request.cookies.get('jwt_token')
     if token:
-        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        data = verify_token(token)
         return add_cookie_to_render('index.html', user=data.get('user'), user_id=data.get('user_id'))
 
     return add_cookie_to_render('index.html', user=None)
@@ -93,7 +94,7 @@ def update_user_route():
         return add_cookie_to_render('index.html', user=None)
 
     try:
-        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        data = verify_token(token)
         previous_page = request.cookies.get('prev_page')
         username = request.form.get('username')
         oldpassword = request.form.get('oldpassword', "").strip()
@@ -158,7 +159,7 @@ def delete_user():
         return add_cookie_to_render('index.html', user=None)
 
     try:
-        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        data = verify_token(token)
         conn = create_connection()
         response = delete_user_db(conn, data.get('user_id'))
         conn.close()
@@ -183,14 +184,13 @@ def logout():
 @app.route('/deck_builder', methods=['GET'])
 def deck_builder():
     token = request.cookies.get('jwt_token')
-    user_data = None
     conn = create_connection()
     cards = get_all_cards(conn)
     conn.close()
     if not token:
         return add_cookie_to_render('deck_builder.html', user=None, cards=cards)
     try:
-        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        data = verify_token(token)
         return render_template('deck_builder.html', user=data.get('user'), cards=cards, user_id=data.get('user_id'))
     except jwt.ExpiredSignatureError:
         return jsonify({'message': 'Token has expired!'}), 403 #need to redirect to ligin or do something that makes better sense
@@ -271,7 +271,7 @@ def forum_page():
     token = request.cookies.get('jwt_token')
     if token:
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            data = verify_token(token)
             return render_template("forum.html", user=data.get('user'), user_id=data.get('user_id'))
         except jwt.ExpiredSignatureError:
             return add_cookie_to_render('index.html', user=None)
@@ -287,7 +287,7 @@ def profil_page(user_id):
         return add_cookie_to_render('index.html', user=None)  # Redirect to index if no token
     try:
         # Décodage du token JWT
-        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        data = verify_token(token)
         # Connexion and get decks and id_user
         conn = create_connection()
         logged_in_user_id = get_user_id_by_username(conn, data.get("user"))  # ID user
@@ -297,7 +297,7 @@ def profil_page(user_id):
         conn.close()
         # User verification
         if logged_in_user_id != user_id:
-            return add_cookie_to_render('index.html', user=data)
+            return add_cookie_to_render('index.html', user=data.get('user'), user_id=data.get('user_id'))
         return add_cookie_to_render("profil.html", user=data.get('user'), user_id=data.get('user_id'), all_decks=user_decks, selected_deck=selected_deck, usermail=usermail)
     except jwt.ExpiredSignatureError:
         return add_cookie_to_render('index.html', user=None)
@@ -310,7 +310,7 @@ def rules():
     if not token:
         return add_cookie_to_render('rules.html', user=None)
     try:
-        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        data = verify_token(token)
         return render_template('rules.html', user=data.get('user'), user_id=data.get('user_id'))
     except jwt.ExpiredSignatureError:
         return jsonify({'message': 'Token has expired!'}), 403 #need to redirect to ligin or do something that makes better sense
@@ -324,7 +324,7 @@ def protected():
     if not token:
         return add_cookie_to_render('protected.html', user=None)
     try:
-        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        data = verify_token(token)
         return render_template('protected.html', user=data)
     except jwt.ExpiredSignatureError:
         return jsonify({'message': 'Token has expired!'}), 403 #need to redirect to ligin or do something that makes better sense

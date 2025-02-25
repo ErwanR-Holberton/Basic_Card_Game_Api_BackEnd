@@ -102,7 +102,7 @@ tbody {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.button, button {
+.button, .save-deck {
     background-color: #C4A000;
     border-radius: 100px;
     box-shadow: rgba(44, 187, 99, .2) 0 -25px 18px -14px inset,
@@ -165,6 +165,15 @@ tbody {
 @media (max-width: 768px) {
     .card-table {
         max-height: 300px;
+    }
+
+    .card {
+        margin: 5px;
+        width: 70%;
+    }
+
+    #available-card {
+        padding: 0px;
     }
 
     .save-deck {

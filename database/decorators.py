@@ -13,6 +13,10 @@ def Commit_DB(func):
             print(f"Error catched by the Commit wrapper: {e}")
             conn.rollback()  # Rollback in case of an error
             return None
+        except Exception as e:
+            print(f"Error catched by the Commit wrapper: {e}")
+            conn.rollback()  # Rollback in case of an error
+            raise e
         finally:
             if cursor:
                 cursor.close()  # Ensure the cursor is closed
