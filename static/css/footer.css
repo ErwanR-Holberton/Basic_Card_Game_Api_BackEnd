@@ -1,0 +1,69 @@
+:root {
+	--footer_height: 50px;
+}
+
+body {
+	font-family: Arial, sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+footer {
+	background-color: #355E3b;
+	color: white;
+	text-align: center;
+	padding: 20px;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	border: 4px solid #C4A000;
+    z-index: 999;
+	height: 10px;
+}
+
+#footer_margin {
+	margin-top: var(--footer_height);
+}
+
+footer a {
+	color: #EAD8A6;
+	margin: 0 15px;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 80%;
+	max-width: 600px;
+	max-height: 80vh;
+	/* Limite la hauteur */
+	overflow-y: auto;
+	/* Ajoute un défilement si nécessaire */
+	background: white;
+	border-radius: 10px;
+	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content {
+	background: white;
+	padding: 20px;
+	max-width: 500px;
+	margin: 100px auto;
+	border-radius: 5px;
+	position: relative;
+}
+
+.close {
+	position: absolute;
+	top: 10px;
+	right: 15px;
+	font-size: 20px;
+	cursor: pointer;
+}

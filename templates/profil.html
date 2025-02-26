@@ -51,7 +51,7 @@
 					</div>
 					<div class="submit_button">
 						<button type="submit" class="update_button">Update</button>
-						<button type="submit" class="delete_button" formaction="/delete_user">Delete</button>
+						<button type="submit" class="delete_button" id="deleteButton" formaction="/delete_user">Delete</button>
 					</div>
 				</div>
 			</form>
@@ -71,6 +71,9 @@
 			</div>
 		</div>
 	</div>
+    {% include 'footer.html' %}
+
+	<script src="../static/scripts/Profil.js" nonce="{{ nonce }}"></script>
 </body>
 
 </html>

@@ -8,14 +8,16 @@
         <a href="/deck_builder">Deck Builder</a>
     </div>
     <div class="logo">
-        <a href="/"><img src="../static/images/GKE_logo-removebg.png" width="50px" height="50px" alt="GKE-logo"></a>
+        <a href="/"><img src="/static/images/GKE_logo-removebg.png" width="50px" height="50px" alt="GKE-logo"></a>
     </div>
     <div>
+        {% if user %}
         <div id="download">Download</div>
+        {% endif %}
         <div>
             <div id="account">
                 {{ user if user else "Account" }}
-                <img src="{{ url_for('static', filename='images/user.svg') }}">
+                <img src="{{ url_for('static', filename='images/user.svg') }}" alt="user icons">
             </div>
             <ul id="accountdropdown">
                 {% if not user %}

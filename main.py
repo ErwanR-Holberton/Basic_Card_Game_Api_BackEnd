@@ -221,7 +221,6 @@ def get_topics_route():
     topics = get_topics(conn, category, page, limit)
     total_topics = get_topic_count(conn, category)
     pages = (total_topics + limit - 1) // limit
-    print(pages, total_topics, limit)
     conn.close()
 
     # Prepare the response
@@ -239,25 +238,24 @@ def get_messages_route():
     topic_id = request.args.get('topic_id', default=1, type=int)  # Default to category page 1
     page = request.args.get('page', default=1, type=int)  # Default to page 1
     limit = request.args.get('limit', default=10, type=int)  # Default to 10 messages per page
+    category = request.args.get('category', default=1, type=int)  # Default to category page 1
 
-    print("recieved:", topic_id, page, limit)
     # Ensure limit and page are positive integers
     if page < 1 or limit < 1:
         return jsonify({"error": "Invalid pagination parameters"}), 400
 
     # Fetch messages from the database (using the defined function)
     conn = create_connection()
-    messages = get_messages(conn, category, page, limit)
+    messages = get_messages(conn, topic_id, page, limit)
     total_messages = get_topic_count(conn, category)
     pages = (total_messages + limit - 1) // limit
-    print(pages, total_messages, limit)
     conn.close()
 
     # Prepare the response
     response = {
         'page': page,
         'pages': pages,
-        'messages': [{'id': message[0], 'title': message[1], 'replies': message[2], 'creationDate': message[3], 'author': message[4]} for message in messages]
+        'messages': [{'id': message[0], 'replies': message[1], 'creationDate': message[2], 'author': message[3]} for message in messages]
     }
     return jsonify(response)
 

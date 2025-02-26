@@ -1,0 +1,127 @@
+<link rel="stylesheet" href="/static/css/footer.css">
+<div id="footer_margin"></div>
+<footer>
+	<a href="#" data-modal="contactModal">Contact</a>
+	<a href="#" data-modal="mentionsModal">Mentions légales</a>
+	<a href="#" data-modal="confidentialiteModal">Politique de confidentialité</a>
+	<a href="#" data-modal="cguModal">Conditions générales d'utilisation</a>
+	<a href="#">Réseaux sociaux</a>
+</footer>
+
+<div id="contactModal" class="modal">
+	<div class="modal-content">
+		<span class="close" data-close="contactModal">&times;</span>
+		<h2>Contact</h2>
+		<form>
+			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+			<label for="name">Nom:</label>
+			<input type="text" id="name" required>
+			<label for="email">Email:</label>
+			<input type="email" id="email" required>
+			<label for="message">Message:</label>
+			<textarea id="message" required></textarea>
+			<button type="submit">Envoyer</button>
+		</form>
+	</div>
+</div>
+
+<div id="mentionsModal" class="modal">
+	<div class="modal-content">
+		<span class="close" data-close="mentionsModal">&times;</span>
+		<h2>Mentions légales</h2>
+		<p>
+			1. Éditeur du site <br>
+			Nom du site : [Nom de votre site] <br>
+			Propriétaire : [Votre nom ou raison sociale]<br>
+			Siège social : [Adresse complète]<br>
+			Numéro SIRET : [Si applicable]<br>
+			Directeur de la publication : [Nom du responsable]<br>
+			Email de contact : [Votre adresse e-mail]<br>
+			<br>
+			2. Hébergement<br>
+			Hébergeur : [Nom de l'hébergeur]<br>
+			Adresse : [Adresse de l'hébergeur]<br>
+			Téléphone : [Numéro de contact]<br>
+			<br>
+			3. Propriété intellectuelle<br>
+			Tous les contenus présents sur ce site (textes, images, logos, etc.) sont
+			protégés par le droit d'auteur. Toute reproduction sans autorisation est interdite.<br>
+			<br>
+			4. Données personnelles<br>
+			Les données collectées via le site sont destinées à [objectif de la collecte]. Vous
+			disposez d'un droit d'accès, de rectification et de suppression de vos données en nous contactant à
+			[adresse
+			e-mail de contact].<br>
+			<br>
+			5. Gestion des cookies<br>
+			Le site utilise uniquement des cookies nécessaires au bon fonctionnement du site.<br>
+			Aucune donnée n'est collectée à des fins commerciales ou publicitaires. Vous pouvez configurer votre
+			navigateur pour refuser ces cookies, mais certaines fonctionnalités du site pourraient être
+			affectées.<br>
+		</p>
+	</div>
+</div>
+
+<div id="confidentialiteModal" class="modal">
+	<div class="modal-content">
+		<span class="close" data-close="confidentialiteModal">&times;</span>
+		<h2>Politique de confidentialité</h2>
+		<p>
+			1. Collecte des données <br>
+			Le site collecte uniquement les données nécessaires à son bon fonctionnement et à
+			l'amélioration de l'expérience utilisateur. Aucune donnée n'est utilisée à des fins commerciales.<br>
+			<br>
+			2. Utilisation des données<br>
+			Les données collectées sont utilisées uniquement pour assurer le bon
+			fonctionnement des services proposés sur le site et ne sont en aucun cas vendues ou partagées avec des
+			tiers.<br>
+			<br>
+			3. Sécurité des données<br>
+			Nous mettons en œuvre des mesures de sécurité appropriées pour protéger les
+			informations personnelles des utilisateurs.<br>
+			<br>
+			4. Droits des utilisateurs<br>
+			Conformément à la réglementation en vigueur, vous disposez d’un droit d’accès, de
+			rectification et de suppression de vos données personnelles. Pour toute demande, contactez-nous à
+			[adresse
+			e-mail de contact].<br>
+		</p>
+	</div>
+</div>
+
+<div id="cguModal" class="modal">
+	<div class="modal-content">
+		<span class="close" data-close="cguModal">&times;</span>
+		<h2>Conditions générales d'utilisation</h2>
+		<p>
+			1. Objet<br>
+			Les présentes Conditions Générales d'Utilisation (CGU) définissent les conditions d'accès et
+			d'utilisation du site [Nom du site].<br>
+			<br>
+			2. Acceptation des conditions<br>
+			L'accès et l'utilisation du site impliquent l'acceptation pleine et entière des
+			présentes CGU.<br>
+			<br>
+			3. Accès au site<br>
+			Le site est accessible gratuitement à tout utilisateur disposant d'une connexion Internet.
+			L'Utilisateur est responsable de son accès au site.<br>
+			<br>
+			4. Responsabilité<br>
+			Le site met tout en œuvre pour assurer l'exactitude des informations publiées, mais ne
+			saurait être tenu responsable des erreurs ou omissions.<br>
+			<br>
+			5. Données personnelles<br>
+			Les informations collectées respectent les réglementations en vigueur sur la
+			protection des données personnelles.<br>
+			<br>
+			6. Modification des CGU<br>
+			Le site se réserve le droit de modifier les présentes CGU à tout moment.
+			L'utilisateur est invité à les consulter régulièrement.<br>
+			<br>
+			7. Droit applicable<br>
+			Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux
+			français seront seuls compétents.<br>
+		</p>
+	</div>
+</div>
+<script nonce="{{ nonce }}" src="/static/scripts/footer.js"></script>
