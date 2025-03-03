@@ -41,7 +41,7 @@
 		<input type="text" name="username" pattern="[a-zA-Z0-9]+" required title="Only alphanumeric characters are allowed.">
 
 		<label for="password">Password:</label>
-		<input type="password" name="password" pattern="[a-zA-Z0-9!@#$%^&*()_+=-]+" required>
+		<input type="password" name="password" required>
 
 		<input type="submit" value="Log In">
 	</form>
@@ -60,19 +60,15 @@
 		<input type="email" name="email" required title="Please enter a valid email address.">
 
 		<label for="password">Password:</label>
-		<input type="password" id="signpass" name="password" pattern="[a-zA-Z0-9!@#$%^&*()_+=-]+" required title="Only alphanumeric characters are allowed.">
+		<input type="password" id="signpass" name="password" required title="Only alphanumeric characters are allowed.">
 
 		<label for="confirm_password">Confirm Password:</label>
-		<input type="password" id="signpasscheck" name="confirm_password" pattern="[a-zA-Z0-9!@#$%^&*()_+=-]+" required title="Only alphanumeric characters are allowed.">
+		<input type="password" id="signpasscheck" name="confirm_password" required title="Only alphanumeric characters are allowed.">
 
 		<div id="signup_error_message" style="color: red; display: none;">{{ signup_error }}</div>
 
 		<input type="submit" value="Sign Up">
 	</form>
 </div>
-<script nonce="{{ nonce }}">
-	window.loginError = {{ "true" if login_error else "false" }};
-	window.signupError = {{ "true" if signup_error else "false" }};
-</script>
 <script nonce="{{ nonce }}" src="/static/scripts/Login.js"></script>
 

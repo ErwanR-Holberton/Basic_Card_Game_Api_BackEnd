@@ -10,7 +10,7 @@ except:
     print("Ask Developper for APP_config.py file")
     exit(1)
 
-app = Flask(__name__, static_url_path='/static')
+app = Flask(__name__, static_url_path='/static', static_folder="static")
 csrf = CSRFProtect(app)
 CORS(
     app,

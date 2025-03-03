@@ -15,7 +15,7 @@ socketio.init_app(app)
 
 def add_cookie_to_render(file, *args, **kwargs):  #you should pass html file name and render arguments
     response = make_response(render_template(file, *args, **kwargs)) # need to add a default page
-    response.set_cookie('prev_page', file, httponly=True, secure=True, samesite='Strict')
+    response.set_cookie('prev_page', request.path, httponly=True, secure=True, samesite='Strict')
     return response
 
 @app.route('/')
@@ -33,7 +33,9 @@ def status():
 
 @app.route('/login', methods=['POST'])
 def login():
-    previous_page = request.cookies.get('prev_page')
+    previous_page = request.cookies.get('prev_page', '/')
+    if previous_page.endswith('.html'):
+        previous_page = previous_page.replace('.html', '')
     username = request.form['username']
     password = request.form['password']
     conn = create_connection()
@@ -42,7 +44,7 @@ def login():
     conn.close()
     if result:
         token = generate_token(username, user_id)
-        response = add_cookie_to_render(previous_page, user=username, user_id=user_id)
+        response = redirect(previous_page)
         response.set_cookie('jwt_token', token.decode('utf-8'), httponly=True, secure=True)  # Set the token in an HTTP-only cookie
         return response
     else:
@@ -50,52 +52,47 @@ def login():
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    previous_page = request.cookies.get('prev_page')
     username = request.form['username']
+    email = request.form['email']
     password = request.form['password']
     confirm_password = request.form['confirm_password']
-    email = request.form['email']
 
-    # Vérification des entrées avec regex
     if not is_valid_username(username):
-        return add_cookie_to_render(previous_page, signup_error="Invalid username format")
+        return "Invalid username format", 400
     if not is_valid_email(email):
-        return add_cookie_to_render(previous_page, signup_error="Invalid email format")
+        return "Invalid email format", 400
     if not is_valid_password(password):
-        return add_cookie_to_render(previous_page, signup_error="Weak password: 8+ chars, 1 uppercase, 1 number, 1 special char")
-
+        return "Weak password", 400
     if password != confirm_password:
-        return add_cookie_to_render(previous_page, signup_error="Passwords do not match")
+        return "Passwords do not match", 400
 
-    if isinstance(username, bytes):
-        username = username.decode('utf-8')
-    if isinstance(email, bytes):
-        email = email.decode('utf-8')
-    if isinstance(password, bytes):
-        password = password.decode('utf-8')
+    try:
+        conn = create_connection()
+        result = create_user(conn, username, email, password)
+        if not result:
+            return "Username already taken", 400
+        user_id = get_user_id_by_username(conn, username)
+        conn.close()
 
-    conn = create_connection()
-    result = create_user(conn, username, email, password)
-    user_id = get_user_id_by_username(conn, username)
-    conn.close()
-
-    if result:
         token = generate_token(username, user_id)
-        response = add_cookie_to_render(previous_page, user=username, user_id=user_id)
+        response = make_response("User created")
         response.set_cookie('jwt_token', token, httponly=True, secure=True)
         return response
-    else:
-        return add_cookie_to_render(previous_page, signup_error="Username already taken")
+    except Exception as e:
+        return f"Error: {str(e)}", 500
+
 
 @app.route('/update_user', methods=['POST'])
 def update_user_route():
     token = request.cookies.get('jwt_token')
     if not token:
-        return add_cookie_to_render('index.html', user=None)
+        return add_cookie_to_render('index', user=None)
 
     try:
         data = verify_token(token)
-        previous_page = request.cookies.get('prev_page')
+        previous_page = request.cookies.get('prev_page', '/')
+        if previous_page.endswith('.html'):
+            previous_page = previous_page.replace('.html', '')
         username = request.form.get('username')
         oldpassword = request.form.get('oldpassword', "").strip()
         newpassword = request.form.get('newpassword', "").strip()
@@ -135,7 +132,7 @@ def update_user_route():
         if response:
             # Générer un nouveau token JWT (si nécessaire) et le renvoyer en cookie
             token = generate_token(username, data.get('user_id'))
-            response = add_cookie_to_render(previous_page, username=username, user_id=data.get('user_id'), usermail=email, selected_deck=selected_deck)
+            response = add_cookie_to_render('profil.html', username=username, user_id=data.get('user_id'), usermail=email, selected_deck=selected_deck)
             response.set_cookie('jwt_token', token.decode('utf-8'), httponly=True, secure=True)  # Set the token in an HTTP-only cookie
             if 'profil' in previous_page:
                 return redirect(f'/profil/{data.get("user_id")}')
@@ -174,8 +171,7 @@ def delete_user():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    previous_page = request.cookies.get('prev_page')
-    response = add_cookie_to_render(previous_page)
+    response = redirect('/')
     response.set_cookie('jwt_token', '', expires=0)  # Remove the JWT cookie by setting its expiration to the past
     return response
 
